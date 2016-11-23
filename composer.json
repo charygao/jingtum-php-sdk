@@ -15,8 +15,6 @@
   }
   ],
   "require" : {
-    "curl" : "1.2.0"
-    "json" : "1.2.0"
     "textalk/websocket" : "1.2.0"
   }
 }
