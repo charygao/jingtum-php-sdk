@@ -391,7 +391,7 @@ class FinGate extends AccountClass
     public function activeWallet($dest_address)
     {
         $amount['currency'] = 'SWT';
-        $amount['value'] = $this->activation_amount;
+        $amount['value'] = strval($this->activation_amount);
         $amount['issuer'] = '';
 
         //No path needed for the SWT payment
