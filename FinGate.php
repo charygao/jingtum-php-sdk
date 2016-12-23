@@ -44,7 +44,6 @@ use JingtumSDK\lib\SnsNetwork;
 use JingtumSDK\lib\ECDSA;
 use JingtumSDK\AccountClass;
 use WebSocket\Client;
-use WebSocket\Exception;
 
 require_once './lib/ECDSA.php';
 require_once './lib/SnsNetwork.php';
@@ -110,14 +109,16 @@ class FinGate extends AccountClass
     /**
      * Set API Server, reserved for future usage. 
      */
-    public function setAPIServer($in_url, $in_version = 'v1')
+    public function setAPIServer($in_server)
     {
         //Init the Server class object
-        $this->APIServer = new APIServer($in_url, $in_version);
-        if ( is_object($this->APIServer) )
+        if ( is_object($in_server) ){
+          $this->APIServer = $in_server;
           return true;
-        else
+        }
+        else{
           return false;
+        }
 
     }
 
@@ -286,7 +287,6 @@ class FinGate extends AccountClass
       //API /v1/uuid，GET method
       //Increase the internal counter by 1
       $id = sprintf("%06d",++$this->uuid);
-      printf("id: %s\n", $id);
       //keep it between 1 and 999999
       if ( $this->uuid > 999999 )
         $this->uuid = 0;
@@ -432,7 +432,7 @@ class FinGate extends AccountClass
         $address = $ecdsa->getAddress();
 
         $ret = new Wallet($address, $secret);
-
+        $ret->setAPIServer($this->APIServer);
         return $ret;
     }
 

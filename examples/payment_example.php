@@ -8,7 +8,7 @@
  */
 use JingtumSDK\FinGate;
 use JingtumSDK\Wallet;
-use JingtumSDK\TumServer;
+//use JingtumSDK\TumServer;
 use JingtumSDK\Tum;
 use JingtumSDK\Amount;
 use JingtumSDK\APIServer;

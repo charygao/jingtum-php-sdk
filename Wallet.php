@@ -121,6 +121,7 @@ class Wallet extends AccountClass
         //Init the Server class object
         if ( is_object($in_server) ){
           $this->APIServer = $in_server;
+          echo "Set API server in $this->address \n";
           return true;
         }
         else

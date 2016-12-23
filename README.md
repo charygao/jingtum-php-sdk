@@ -30,9 +30,15 @@ require('vendor/autoload.php');
 AccountClass.php   - Basic Jingtum account. 
 FinGate.php        - FinGate class and functions. 
 Operation.php      - Payment, Order and other Operations. 
+Tum.php            - Tum, Amount, Balance classes.
 Server.php         - Basic server, API server, Tum server
                      and Websocket server.
-Wallet.php         - Wallet class and functions. 
+Wallet.php         - Wallet class and functions.
+-----------------------------------------------------------
+配置文件 
+composer.json      - composer config file for package installation. 
+composer.lock      - composer lock file for package installation.
+config.json        - Jingtum server configurations.
 -----------------------------------------------------------
 所需库文件
 lib/
@@ -47,8 +53,12 @@ examples/
 test_data.json     - Test data used in the test program, only used for
                      the development server.
 issue_tum.php      - Setup the FinGate in test environment and use it 
-                     to issue custom Tum.
-
-To run the examples, copy the PHP file and test_data.json to the directory,
+                     to issue custom Tum. This requires extral info
+                     from the user. The user should register at the 
+                     Jingtum company to get the information.
+payment_example.php - Use two test accounts for sending payments.
+server_example.php - Showed how to initial the servers.
+wallet_example.php - Create wallet and active it. 
+To run the examples, at the current directory,
 install the necessary packages, and run:
-php5 issue_tum.php
+php5 example/payment_example.php
