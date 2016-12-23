@@ -19,7 +19,7 @@ class Tum
     //native: SWT
     //currency: CNY, USD, EUR
     //Custom Tum:
-    protected $code = '';
+    protected $tum_code = '';
 
     //Only for non-native Tum
     //for SWT, this is empty
@@ -37,8 +37,8 @@ class Tum
     function __construct($in_code, $in_issuer = '')
     {
         $this->issuer = $in_issuer;
-        $this->code = trim($in_code);
-        $this->tum_type = decideType(strtoupper($this->code));
+        $this->tum_code = trim($in_code);
+        $this->tum_type = decideType(strtoupper($this->tum_code));
     }
 
 
@@ -48,7 +48,7 @@ class Tum
     public function getTumAmount($in_value)
     {
         //create a amount JSON
-        $amount['currency'] = $this->code;
+        $amount['currency'] = $this->tum_code;
     //Notice that the Amount obj has
     //String to represent the value, not float
         $amount['value'] = strval($in_value);
@@ -59,7 +59,7 @@ class Tum
 
     public function setCode($in_code)
     {
-        $this->code = trim($in_code);
+        $this->tum_code = trim($in_code);
     }
 
     public function setIssuer($in_issuer)
@@ -74,7 +74,7 @@ class Tum
      */
     public function getCode()
     {
-        return $this->code;
+        return $this->tum_code;
     }
 
     /**
@@ -87,11 +87,11 @@ class Tum
     }
 
     /*
-     *Return the Tum as currency+counterparts->code.'+'.$this->issuer;
+     *Return the Tum as currency+counterparts->tum_code.'+'.$this->issuer;
     */
     public function getPair()
     {
-        return $this->code.'+'.$this->issuer;
+        return $this->tum_code.'+'.$this->issuer;
     }
     /**
      *
@@ -127,10 +127,21 @@ class Amount extends Tum
         $this->value = strval($in_value);
     }
 
+    public function setCounterparty($in_str)
+    {
+        $this->issuer = strval($in_str);
+    }
+
+    public function setCurrency($in_str)
+    {
+        $this->tum_code = strval($in_str);
+    }
+
+
     //
     public function getAmount()
     {   //create a amount JSON
-        $amount['currency'] = $this->code;
+        $amount['currency'] = $this->tum_code;
         //Notice that the Amount obj has
         //String to represent the value, not float
         $amount['value'] = strval($this->value);
@@ -142,6 +153,17 @@ class Amount extends Tum
     public function getValue()
     {
         return $this->value;
+    }
+
+    public function getCurrency()
+    {
+        return $this->tum_code;
+    }
+
+    //The meaning of counterpary and issuer
+    public function getCounterparty()
+    {
+        return $this->issuer;
     }
 
 }
