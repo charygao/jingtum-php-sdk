@@ -32,6 +32,7 @@ use WebSocket\Client;
 require_once('vendor/autoload.php');
 require_once './lib/SignUtil.php';
 require_once './lib/ECDSA.php';
+require_once './lib/ConfigUtil.php';
 require_once './lib/SnsNetwork.php';
 
 /**
@@ -108,9 +109,31 @@ class APIServer extends ServerClass
     //reserved for DATA server URL
     function __construct($in_url, $in_version = 'v1')
     {
-        //$this->serverURL = $inURL;
-        parent::__construct($in_url);
-        $this->version = $in_version;
+
+      //Load the default config file
+      //return should be an object holding JSON info.
+      $this->config = readConfigJSON("config.json");
+
+      if ( is_object($this->config))
+      {
+        //Use production server 
+        try {
+
+          parent::__construct($this->config->PRO->api);
+
+        } catch (Exception $e) {
+            echo "Error in setup API from the config\n";
+        }
+               try {
+
+          $this->version = $this->config->PRO->api_version;
+          if ( $this->version != 'v1' && $this->version != 'v2')
+            throw new Exception('API version error!');
+        }catch (Exception $e) {
+          echo "Error in get the API version\n";
+        }
+      }else
+        throw new Exception ('Error of read config info!');
     }
    
     //Destructor
@@ -158,18 +181,6 @@ class APIServer extends ServerClass
             $params['t'] = $res['t'];
         }
         
-        //Note
-        //print_r($url);
-        //print_r($in_cmd['params']);
-        //print_r("\n===========================\n");
-//        $ret = $in_cmd['method'];
-/*debug
-        print_r("\nDebugging\n======URL==========\n");
-        echo $url;
-        print_r("\n=======PARAMETER==============\n");
-        echo json_encode($in_cmd['params']);
-        print_r("\n========RESPONSE==============\n");
-*/
         $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
           $in_cmd['method']);

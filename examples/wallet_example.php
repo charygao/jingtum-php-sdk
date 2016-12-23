@@ -31,7 +31,7 @@ $wallet1 = $fin_gate->createWallet();
 //Setup the API server using DEV server configurations.
 //Check if the initialization is successful
 //Then start the wallet operations.
-$api_server = new APIServer($test_data->DEV->api);
+$api_server = new APIServer();
 if (is_object($api_server)){
 echo "\n==Set API Server Successful!==\n";
 
@@ -42,5 +42,8 @@ $res = $api_server->submitRequest($fin_gate->activeWallet($wallet1->address));
 
 var_dump($res);
 //Payment with a Tum
+
+
+
 return;//end of the program
 ?>

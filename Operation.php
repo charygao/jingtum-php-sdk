@@ -92,26 +92,36 @@ abstract class OperationClass
         $this->src_secret = '';
     }
 
-    //
+    //Init the public address
     public function setSrcAddress($in_address)
     {
        $this->src_address = $in_address;
     }
 
-    //Changed from setSrcSecret
-    //to sign
+    //Added to keep the same as other SDKs
+    // setSrcSecret
+    //
+    public function setSrcSecret($in_secret)
+    {
+       $this->src_secret = $in_secret;
+    }
+
+    //Sign the operation
     //
     public function sign($in_secret)
     {
        $this->src_secret = $in_secret;
     }
-    
-    /*
+   
+  
+
+
+     /*
      * Set the operation mode to 
      * true - Synchronous mode
      * false - Asynchronous Mode
      */
-    public function setSyn($in_sync)
+    public function setValidate($in_sync)
     {
        $this->sync = $in_sync;
        //may need to check if the value is boolean or not
