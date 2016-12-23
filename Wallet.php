@@ -114,14 +114,15 @@ class Wallet extends AccountClass
     }
 
     /*
-     * Set the API server link
+     * Set the API server
     */
-    public function setAPIServer($in_url, $in_version = 'v1')
+    public function setAPIServer($in_server)
     {
         //Init the Server class object
-        $this->APIServer = new APIServer($in_url, $in_version);
-        if ( is_object($this->APIServer) )
+        if ( is_object($in_server) ){
+          $this->APIServer = $in_server;
           return true;
+        }
         else
           return false;
     }

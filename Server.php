@@ -26,7 +26,6 @@ namespace JingtumSDK;
 
 use JingtumSDK\lib\SnsNetwork;
 use JingtumSDK\lib\ECDSA;
-//use WebSocket\Exception;
 use WebSocket\Client;
 
 require_once('vendor/autoload.php');
@@ -58,13 +57,13 @@ abstract class ServerClass
     //Protected attributes 
     protected $serverURL = '';
 
-    function __construct($in_url)
+    function __construct($in_url = NULL)
     {
+
       if ( empty($in_url) ){
-        printf("Empty url!\nPlease enter a valid server address!\n");
+          throw new Exception ('Error of empty url!');
       }
       else{
-        printf("Setup server %s\n", $in_url);;
         $this->serverURL = $in_url;
       }
     }
@@ -75,6 +74,10 @@ abstract class ServerClass
      */
     public function getServerURL()
     {
+      if ( empty($in_url) ){
+        throw new Exception ('Error of empty url!');
+      }
+      else
         return $this->serverURL;
     }
  
@@ -103,17 +106,27 @@ class APIServer extends ServerClass
     //API version
     private $version = '';
     
+    private $config = NULL;
+
+    //internal prefix to create transaction ID
+    private $prefix = 'prefix';
+
+    //internal counter to generate transaction ID
+    private $uuid = 0;
+    
     //Declare the instance 
     private static $instance = NULL;
 
     //reserved for DATA server URL
-    function __construct($in_url, $in_version = 'v1')
+    //function __construct($in_url, $in_version = 'v1')
+    //Default set the Server to production server PRO
+    //if the input is false, set to develop server DE
+    function __construct()
     {
-
       //Load the default config file
       //return should be an object holding JSON info.
       $this->config = readConfigJSON("config.json");
-
+      
       if ( is_object($this->config))
       {
         //Use production server 
@@ -123,8 +136,9 @@ class APIServer extends ServerClass
 
         } catch (Exception $e) {
             echo "Error in setup API from the config\n";
-        }
-               try {
+        }        
+
+        try {
 
           $this->version = $this->config->PRO->api_version;
           if ( $this->version != 'v1' && $this->version != 'v2')
@@ -145,7 +159,6 @@ class APIServer extends ServerClass
     public static function getInstance()
     {
         if (! self::$instance instanceof self) {
-            // echo 'lgh-big';
             self::$instance = new self();
         }
         
@@ -163,7 +176,7 @@ class APIServer extends ServerClass
         $cmd['url'] = str_replace("{0}", $this->address, BALANCES);
         $cmd['params'] = '';
     */
-    public function submitRequest($in_cmd, $in_address, $in_secret)
+    public function submitRequest($in_cmd, $in_address='', $in_secret='')
     {
         //Generate a full url with server address and API version
         //info
@@ -180,7 +193,8 @@ class APIServer extends ServerClass
             $params['h'] = $res['h'];
             $params['t'] = $res['t'];
         }
-        
+
+        //Submit the parameters to the SERVER
         $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
           $in_cmd['method']);
@@ -208,7 +222,51 @@ class APIServer extends ServerClass
       $ret = SnsNetwork::api($url, '', 'GET');
       return $ret;
     }
-   
+  
+    //Set the test environment according tot he input flag
+    //
+    public function setTest($test_flag = 'true')
+    {
+      //use the input boolean flag to set the 
+      //server url
+      if ( is_bool($test_flag)){
+        if ( is_object($this->config) ){
+          //Conver the 
+          if ( $test_flag == true){ 
+            $this->serverURL = $this->config->DEV->api;
+            $this->version = $this->config->DEV->api_version;
+          }
+          else
+          { 
+            $this->serverURL = $this->config->PRO->api; 
+            $this->version = $this->config->PRO->api_version;
+          }
+        }else
+          echo "No configuration is set!";
+          //reload the config file 
+      }else{
+        echo "Input need to be a boolean";
+      }
+      echo "Server set to $this->serverURL\n";
+    }
+
+    //Return a uuid from the API SERVER
+    //Change it to use prefix and UNIX time
+    //Format as the follows:
+    //prefix.yyyymmddHHMMss.000000
+    //
+    public function getClientResourceID()
+    {
+      //API /v1/uuid，GET method
+      //Increase the internal counter by 1
+      $id = sprintf("%06d",++$this->uuid);
+      //keep it between 1 and 999999
+      if ( $this->uuid > 999999 )
+        $this->uuid = 0;
+
+      return $this->prefix.time().$id;
+    }
+ 
 }
 
 /*
@@ -221,6 +279,27 @@ this Class requires The Websocket Client for PHP package
 class WebSocketServer extends ServerClass
 {
     private $ws_server = ''; 
+
+    function __construct()
+    {
+      //Load the default config file
+      //return should be an object holding JSON info.
+      $this->config = readConfigJSON("config.json");
+
+      if ( is_object($this->config))
+      {
+        //Use production server
+        try {
+
+          parent::__construct($this->config->PRO->ws);
+
+        } catch (Exception $e) {
+            echo "Error in setup WebSocket server from the config\n";
+        }
+
+      }else
+        throw new Exception ('Error of read config info!');
+    }
 
     /**
      * Connect to the socket server to receive
@@ -298,6 +377,29 @@ class WebSocketServer extends ServerClass
     {
       return $this->ws_server->receive();
     }
+
+    //Set the test server
+    public function setTest($test_flag = 'true')
+    {
+      //use the input boolean flag to set the
+      //server url
+      if ( is_bool($test_flag)){
+        if ( is_object($this->config) ){
+          //Conver the
+          if ( $test_flag == true){
+            $this->serverURL = $this->config->DEV->ws;
+          }
+          else
+          {
+            $this->serverURL = $this->config->PRO->ws;
+          }
+        }else
+          echo "No configuration is set!";
+          //reload the config file
+      }else{
+        echo "Input need to be a boolean";
+      }
+    }
  
 }
 
@@ -315,13 +417,56 @@ class TumServer extends ServerClass
     private static $instance = NULL;
 
     //reserved for DATA server URL
-    function __construct($in_url)
+    function __construct($in_url = NULL)
     {
       //$this->serverURL = $inURL;
-      if ( is_string($in_url))
-        parent::__construct($in_url);
-      else
+      if ( empty($in_url)){
+
+        //Load the default config file
+        //return should be an object holding JSON info.
+        $this->config = readConfigJSON("config.json");
+
+        if ( is_object($this->config))
+        {
+          //Use production server
+          try {
+
+          parent::__construct($this->config->PRO->fingate);
+
+          } catch (Exception $e) {
+            echo "Error in setup WebSocket server from the config\n";
+          }
+
+        }else
+          throw new Exception ('Error of read config info!');
+
+      }
+      else{
         throw new  Exception('Input url not a string!'); 
+      }
+    }
+
+    //Set the test server
+    public function setTest($test_flag = 'true')
+    {
+      //use the input boolean flag to set the
+      //server url
+      if ( is_bool($test_flag)){
+        if ( is_object($this->config) ){
+          //Conver the
+          if ( $test_flag == true){
+            $this->serverURL = $this->config->DEV->fingate;
+          }
+          else
+          {
+            $this->serverURL = $this->config->PRO->fingate;
+          }
+        }else
+          echo "No configuration is set!";
+          //reload the config file
+      }else{
+        echo "Input need to be a boolean";
+      }
     }
     
     /*
@@ -350,11 +495,6 @@ class TumServer extends ServerClass
         //info
           $url = $this->serverURL . $in_cmd['url'];
         
-    /*    print_r("\nDebugging\n======URL==========\n");
-        echo $url;
-        print_r("\n=======PARAMETER==============\n");
-        echo json_encode($in_cmd['params']);
-    */
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
           $temp_cmd);

@@ -10,6 +10,8 @@
  */
 namespace JingtumSDK;
 
+require_once 'lib/DataCheck.php';
+
 class Tum
 {
 //Private attributes
@@ -32,7 +34,7 @@ class Tum
 
 
     //Build a Tum obj
-    function __construct($in_code, $in_issuer)
+    function __construct($in_code, $in_issuer = '')
     {
         $this->issuer = $in_issuer;
         $this->code = trim($in_code);
@@ -117,6 +119,7 @@ class Amount extends Tum
     function __construct($in_code, $in_issuer, $in_value)
     {
         $this->value = $in_value;
+        parent::__construct($in_code, $in_issuer);
     }
 
     public function setValue($in_value)
@@ -130,7 +133,7 @@ class Amount extends Tum
         $amount['currency'] = $this->code;
         //Notice that the Amount obj has
         //String to represent the value, not float
-        $amount['value'] = $this->value;
+        $amount['value'] = strval($this->value);
         $amount['issuer'] = $this->issuer;
         return $amount;
     }

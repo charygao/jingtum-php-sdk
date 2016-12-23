@@ -8,6 +8,7 @@
  */
 use JingtumSDK\FinGate;
 use JingtumSDK\Wallet;
+use JingtumSDK\APIServer;
 use JingtumSDK\TumServer;
 
 require_once 'lib/ConfigUtil.php';
@@ -27,6 +28,9 @@ printf("%s\n",$fin_gate->getSecret());
 
 //Create the new wallet using the FinGate function
 $wallet1 = $fin_gate->createWallet();
+echo "Get new wallet\n";
+echo "Address: $wallet1->getAddress()\n";
+echo "Secret: $wallet1->getSecret()\n";
 
 //Setup the API server using DEV server configurations.
 //Check if the initialization is successful
@@ -34,15 +38,18 @@ $wallet1 = $fin_gate->createWallet();
 $api_server = new APIServer();
 if (is_object($api_server)){
 echo "\n==Set API Server Successful!==\n";
+$api_server->setTest(true);
 
 //Active the new wallet, set up the minimum active amount
 //if needed. Otherwise FinGate uses the default amount.
 $fin_gate->setActivateAmount(30);
-$res = $api_server->submitRequest($fin_gate->activeWallet($wallet1->address));
+//$res = $api_server->submitRequest($fin_gate->activeWallet($wallet1->getAddress()));
+$fin_gate->setAPIServer($api_server);
+$res = $fin_gate->activeWallet($wallet1->getAddress());
 
+//display the results
 var_dump($res);
-//Payment with a Tum
-
+}
 
 
 return;//end of the program

@@ -403,7 +403,7 @@ class FinGate extends AccountClass
         
         //parameter info to submit, use internal client resource id
         $params['secret'] = $this->secret;
-        $params['client_resource_id'] = getClientResourceID();
+        $params['client_resource_id'] = $this->getClientResourceID();
         $params['payment'] = $payment;
         
         //Setupt the URL and parameters, only used asyn for this
@@ -428,8 +428,11 @@ class FinGate extends AccountClass
         $ecdsa = new ECDSA();
         $ecdsa->generateRandomPrivateKey();
 
-        $ret['address'] = $ecdsa->getAddress();
-        $ret['secret'] = $ecdsa->getWif();
+        $secret = $ecdsa->getWif();
+        $address = $ecdsa->getAddress();
+
+        $ret = new Wallet($address, $secret);
+
         return $ret;
     }
 

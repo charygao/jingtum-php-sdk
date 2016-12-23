@@ -2,8 +2,10 @@
 /**
  * PHP SDK for Jingtum network; ECDSA class
  * @version 1.0.0
- * @author Jing Zhao
+ * @author Jingtum Inc
  * @copyright © 2016, Jingtum Labs. All rights reserved.
+ * 2016/12/01
+ * 
  */
 namespace JingtumSDK\lib;
 
@@ -323,8 +325,11 @@ class ECDSA
             throw new \Exception('No Private Key was defined');
         }
         
-        $k = $this->seed;
-        $secretKey = '21' . $k;
+//        $k = $this->seed;
+//        $secretKey = '21' . $k;
+        $this->k = $this->seed;
+        //Generate the secret key 
+        $secretKey = '21' . $this->k;
         $secretKey .= substr($this->hash256(hex2bin($secretKey)), 0, 8);
         
         return $this->base58_encode($secretKey);
@@ -402,7 +407,8 @@ class ECDSA
 
     /**
      * *
-     * Computes the result of a point multiplication and returns the resulting point as an Array.
+     * Computes the result of a point multiplication and 
+     * returns the resulting point as an Array.
      *
      * @param string|resource $k
      *            (hexa|GMP|Other bases definded in base)
@@ -414,14 +420,17 @@ class ECDSA
      */
     public function mulPoint($k, Array $pG, $base = null)
     {
+        //printf("mulpoint:[%s] with %d\n",$k, $base);
         // in order to calculate k*G
         if ($base === 16 || $base === null || is_resource($base))
             $k = gmp_init($k, 16);
+//printf("k value: %s\n", $k);
         if ($base === 10)
             $k = gmp_init($k, 10);
         $kBin = gmp_strval($k, 2);
         
         $lastPoint = $pG;
+
         for ($i = 1; $i < strlen($kBin); $i ++) {
             if (substr($kBin, $i, 1) === '1') {
                 $dPt = $this->doublePoint($lastPoint);
@@ -430,6 +439,7 @@ class ECDSA
                 $lastPoint = $this->doublePoint($lastPoint);
             }
         }
+
         if (! $this->validatePoint(gmp_strval($lastPoint['x'], 16), gmp_strval($lastPoint['y'], 16)))
             throw new \Exception('The resulting point is not on the curve.');
         return $lastPoint;
@@ -621,7 +631,6 @@ class ECDSA
     {
         $G = $this->G;
         // $private_gen = $this->private_gen;
-        
         if (! isset($this->private_gen)) {
             throw new \Exception('No Private Generator was defined');
         }
@@ -672,11 +681,13 @@ class ECDSA
      * @return array|string
      * @throws \Exception
      */
-    public function computetPubKey($secret, $base = 16, array $pubKeyPts = [])
+    public function computePubKey($secret, $base = 16, array $pubKeyPts = [])
     {
+
         if (empty($pubKeyPts))
             $pubKeyPts = $this->getPubKeyPoints($secret, $base);
-        
+//got cosntants???
+ 
         if (gmp_strval(gmp_mod(gmp_init($pubKeyPts['y'], 16), gmp_init(2, 10))) === '0')
             $compressedPubKey = '02' . $pubKeyPts['x']; // if $pubKey['y'] is even
         else
@@ -717,7 +728,7 @@ class ECDSA
         // checksum
         $address = $address . substr($this->hash256(hex2bin($address)), 0, 8);
         $address = $this->base58_encode($address);
-        
+
         if ($this->validateAddress($address))
             return $address;
         else
@@ -765,7 +776,7 @@ class ECDSA
         if (! isset($this->k)) {
             $private_gen = $this->private_gen;
             
-            $public_gen = $this->computetPubKey($private_gen);
+            $public_gen = $this->computePubKey($private_gen);
             $seq = 0;
             
             do {
@@ -776,16 +787,19 @@ class ECDSA
                 
                 $seq += 1;
             } while (gmp_cmp(gmp_init($key, 16), gmp_sub($this->n, gmp_init(1, 10))) === 1);
-            
             $this->k = gmp_mod(gmp_add(gmp_init($key, 16), gmp_init($private_gen, 16)), $this->n) . '';
         }
+//        else
+//          printf("key value is set[%s]\n",$this->k);
         
         return $this->k;
     }
 
+    //Compute the public key and return the results
     public function getPubKey()
     {
-        return $this->computetPubKey($this->getPrivateKey(), 10);
+        //printf("getPubKey from [%s]\n", $this->getPrivateKey());
+        return $this->computePubKey($this->getPrivateKey(), 10);
     }
 
     /**

@@ -87,41 +87,43 @@ abstract class OperationClass
     
     function __construct($in_address)
     {
+        //echo "OperationClass constructor\n";
         $this->src_address = $in_address;
-        print "OperationClass constructor\n";
         $this->src_secret = '';
     }
 
-    //Init the public address
+    //
     public function setSrcAddress($in_address)
     {
        $this->src_address = $in_address;
     }
 
-    //Added to keep the same as other SDKs
-    // setSrcSecret
-    //
-    public function setSrcSecret($in_secret)
-    {
-       $this->src_secret = $in_secret;
-    }
-
-    //Sign the operation
+    //Changed from setSrcSecret
+    //to sign
     //
     public function sign($in_secret)
     {
        $this->src_secret = $in_secret;
     }
    
-  
-
-
-     /*
+    public function setSrcSecret($in_secret)
+    {
+       $this->src_secret = $in_secret;
+    }
+ 
+    /*
      * Set the operation mode to 
      * true - Synchronous mode
      * false - Asynchronous Mode
+     * 
      */
     public function setValidate($in_sync)
+    {
+       $this->sync = $in_sync;
+       //may need to check if the value is boolean or not
+    }
+
+    public function setSyn($in_sync)
     {
        $this->sync = $in_sync;
        //may need to check if the value is boolean or not
@@ -209,6 +211,7 @@ class PaymentOperation extends OperationClass
        $this->amount['currency'] = $in_tum_amount['currency'];
        $this->amount['value'] = $in_tum_amount['value'];
        $this->amount['issuer'] = $in_tum_amount['issuer'];
+       print_r($this->amount);
     }
    
     

@@ -32,6 +32,33 @@ define('CURRENCY_NAME_LEN', 3);
 define('TUM_NAME_LEN', 40);
 
 /*
+//Types of Tum
+    //native: SWT
+    //currency: CNY, USD, EUR,
+  /
+  tum: Custom tum, 40 characters
+*/
+
+function decideType($in_str)
+{
+    $type = 'unknown';
+
+    if ($in_str == 'SWT' )
+      $type = 'native';
+    else{
+      if ( isCurrency($in_str) )
+        $type = 'currency';
+      else{
+        if ( isTum($in_str))
+          $type = 'tum';
+      }
+        
+    }
+
+    return $type;
+}
+
+/*
  * Return true if the input string is a valid currency code.
 */
 function isCurrency($in_str)
