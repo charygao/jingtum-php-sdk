@@ -194,6 +194,7 @@ class APIServer extends ServerClass
             $params['t'] = $res['t'];
         }
 
+        echo "\nSubmitting......\n$url\n";
         //Submit the parameters to the SERVER
         $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 

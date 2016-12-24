@@ -73,7 +73,7 @@ abstract class OperationClass
     //to start with.
     protected $src_address = '';
     protected $src_secret = '';
-    protected $sync = true;
+    protected $sync = 'true';
     // Force Extending class to define this method
     // All the operation methods should contain this
     // but can define it differently.

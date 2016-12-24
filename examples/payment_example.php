@@ -74,7 +74,9 @@ if ( $wt0->setAPIServer($api_server)){
 }
 else
   echo 'Error in initing Wallet Server';
-
+/*$paylist = $wt0->getPaymentList();
+print_r($paylist);
+return;*/
 dest_account:
 $my_wallet2 = $test_data->DEV->wallet3;
 $wt2 = new Wallet($my_wallet2->address, $my_wallet2->secret);
