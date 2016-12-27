@@ -269,9 +269,17 @@ class Wallet extends AccountClass
      */
     public function getPathList($dest_address, $amount)
     {
-        $payment = $amount['value'].'+' . $amount['currency'] . '+' . $amount['counterparty'];
+        if ( is_object($amount)){
+          $payment = $amount->getValue().'+'.$amount->getCurrency().'+'.$amount->getIssuer();
+        }else{
+          if ( is_array($amount)){
+          $payment = $amount['value'].'+' . $amount['currency'] . '+' . $amount['issuer'];
+          }
+          else
+            throw new Exception('Input amount should be an object or array!');
+        }
         $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}",$this->address, PAYMENT_PATHS). '/' .$dest_address. '/' .$payment;
+        $cmd['url'] = str_replace("{0}",$this->address, PAYMENT_PATHS). $dest_address. '/' .$payment;
         $cmd['params'] = '';
         
         if ( is_object($this->APIServer))

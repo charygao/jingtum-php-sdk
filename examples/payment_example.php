@@ -8,7 +8,6 @@
  */
 use JingtumSDK\FinGate;
 use JingtumSDK\Wallet;
-//use JingtumSDK\TumServer;
 use JingtumSDK\Tum;
 use JingtumSDK\Amount;
 use JingtumSDK\APIServer;
@@ -21,10 +20,45 @@ require_once 'Wallet.php';
 require_once 'Operation.php';
 require_once 'Tum.php';
 
-//Display the return of the balances
+//A simple function to display the 
+//number of payments returned
+function displayPayments($res, $j = 0){
+if ( $res['success'] == true ){
+  if ( is_array($res['payments']) ){
+    $num = count($res['payments']); 
+    echo "Total $num payments\n";
+  }
+}else
+{
+  echo "\nError in payment list\n";
+  print_r($res);
+
+}
+}
+
+//A simple function to display the
+//number of payment path found
+function displayPaymentPaths($res, $j = 0){
+if ( $res['success'] == true ){
+  if ( is_array($res['payments']) ){
+    
+    $num = count($res['payments']);
+    echo "Total $num payment paths\n";
+    for ($i = 0; $i < $num; $i ++ )
+      echo 'PATH: '.$res['payments'][$i]['paths']."\n";
+  }
+}else
+{
+  echo "\nError in payment paths\n";
+  print_r($res);
+
+}
+}
+
+//Display the balance in the account
 function displayBalances($res, $j = 0){
   $return_value = -999;
-if ( $res['success'] == true ){
+  if ( $res['success'] == true ){
   if ( is_array($res['balances']) ){
     for ( $i = 0; $i < count($res['balances']); $i ++){
       $code = $res['balances'][$i]['currency'];
@@ -44,6 +78,7 @@ else
   return $return_value;
 }
 
+/***************************************/
 //Read in the test configuration and data
 $test_data = readTestData("examples/test_data.json");
 
@@ -52,40 +87,43 @@ if ( $test_data == false ){
    return;
 }
 
+$test_wallet2 = $test_data->DEV->wallet2;
+$test_wallet3 = $test_data->DEV->wallet3;
+$test_cny = $test_data->DEV->CNYAmount1;
+
 /***************************************/
 //Step 1.
-//Setup the API server, use test environment
+//Setup the API server with test environment
 $api_server = new APIServer();
 $api_server->setTest(true);
 
 /***************************************/
 //Step 2.
-//Set up two wallets
-$test_wallet2 = $test_data->DEV->wallet2;
+//Set up wallet object
 
 src_account:
-$wt0 = new Wallet($test_wallet2->address, $test_wallet2->secret);
-if ( $wt0->setAPIServer($api_server)){
-  $res = $wt0->getBalance();
-  echo $wt0->getAddress();
+$wt2 = new Wallet($test_wallet2->address, $test_wallet2->secret);
+if ( $wt2->setAPIServer($api_server)){
+  $res = $wt2->getBalance();
+  echo $wt2->getAddress();
   //Get the src value before payment for validation
   $src_val0 = displayBalances($res, 0);
 
 }
 else
   echo 'Error in initing Wallet Server';
-/*$paylist = $wt0->getPaymentList();
-print_r($paylist);
-return;*/
+//List the number of payment
+$paylist = $wt2->getPaymentList();
+displayPayments($paylist);
+
 dest_account:
-$my_wallet2 = $test_data->DEV->wallet3;
-$wt2 = new Wallet($my_wallet2->address, $my_wallet2->secret);
+$wt3 = new Wallet($test_wallet3->address, $test_wallet3->secret);
 //Need to setup the api server
 //display the balances
-if ( $wt2->setAPIServer($api_server)){
+if ( $wt3->setAPIServer($api_server)){
 
-  $res = $wt2->getBalance();
-  echo $wt2->getAddress();
+  $res = $wt3->getBalance();
+  echo $wt3->getAddress();
   $des_val0 = displayBalances($res, 0);
 }
 
@@ -95,12 +133,16 @@ if ( $wt2->setAPIServer($api_server)){
 //3.1 Create the payment operation 
 //Make payment from wallet0 to wallet2 using SWT
 //Building a payment operation
-$payreq = new PaymentOperation($wt0->getAddress());
-$payreq->setSrcSecret($wt0->getSecret());
+$payreq = new PaymentOperation($wt2->getAddress());
+$payreq->setSrcSecret($wt2->getSecret());
 
-$payreq->setDestAddress($wt2->getAddress());//required
+$payreq->setDestAddress($wt3->getAddress());//required
 
-goto CNY_payment;
+
+
+$pay_value = 1.0;
+//goto CNY_payment;
+goto PATH_payment;
 
 SWT_payment:
 //Create the amount
@@ -117,9 +159,9 @@ $payreq->setResourceID($api_server->getClientResourceID());//required
 
 //3.2 Submit the payment operation 
 //submit the request
-$res = $api_server->submitRequest($payreq->build(), $wt2->getAddress(), $wt2->getSecret());
+$res = $api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
 echo "************Make payment with $pay_value SWT***************\n";
-print_r($res);
+//print_r($res);
 echo "***************************\n";
 
 //3.3.
@@ -128,8 +170,8 @@ sleep(10);
 
 //3.4
 //check the balance after the payment
-$res = $wt2->getBalance();
-echo $wt2->getAddress();
+$res = $wt3->getBalance();
+echo $wt3->getAddress();
 //Should notice the change in the balances
   $des_val1 = displayBalances($res, 0);
 if ( ($des_val1 - $des_val0 ) == $pay_value ) 
@@ -138,25 +180,25 @@ else{
   echo "Destination account change from $des_val0 to $des_val1\nDiffernt from $pay_value\n";
 }
 
+displayPayments($wt3->getPaymentList());
 
 /***************************************/
 //Step 4.
 //Make the CNY payment
 //4.1 Create the payment amount and add to the operation
 CNY_payment:
-$test_cny = $test_data->DEV->CNYAmount1;
-$pay_value = 1.0;
 //
 echo "************Make payment with $pay_value CNY***************\n";
 //create the new tum amount object
 $amt1 = new Amount($test_cny->currency, $test_cny->issuer, $pay_value);
+
 $payreq->setDestAmount($amt1->getAmount());
 
 //4.2 Submit the payment operation
 //submit the request
 
 //get the blances of the destination wallet
-$res = $wt2->getBalance();
+$res = $wt3->getBalance();
 //notice the CNY is 4th currency in the test dest wallet
 $des_val0 = displayBalances($res, 4);
 
@@ -164,7 +206,54 @@ $des_val0 = displayBalances($res, 4);
 $payreq->setValidate('false');//optional, setup the syn mode, default is true
 $payreq->setResourceID($api_server->getClientResourceID());//required
 
-$res = $api_server->submitRequest($payreq->build(), $wt2->getAddress(), $wt2->getSecret());
+$res = $api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
+
+print_r($res['success']);
+//wait for the close of ledger
+echo 'Wait for ledger closing.';
+for ($i = 0; $i<10; $i++){
+    echo '.';
+sleep(1);
+}
+echo "\n";
+//Should notice the change in the balances
+$res = $wt3->getBalance();
+$des_val1 = displayBalances($res, 4);
+
+if ( ($des_val1 - $des_val0 ) == $pay_value )
+  echo "Destination account change from $des_val0 to $des_val1\nSame as $pay_value\n";
+else{
+  echo "Destination account change from $des_val0 to $des_val1\nDiffernt from $pay_value\n";
+}
+
+/***************************************/
+//Step 5.
+//Submit payment with payment path
+//5.1 Search for the PATH
+PATH_payment:
+$amt1 = new Amount($test_cny->currency, $test_cny->issuer, $pay_value);
+
+$payreq->setDestAmount($amt1->getAmount());
+
+echo "************Check payment path  $pay_value CNY***************\n";
+$res = $wt2->getPathList($wt3->getAddress(), $amt1);
+
+if ( count($res['payments']) > 0 ){
+//choose the 1st path
+$path = $res['payments'][0]['paths'];
+
+//Set it to the payment operation
+$payreq->setPath($path);
+$payreq->setValidate('false');//optional, setup the syn mode, default is true
+$payreq->setResourceID($api_server->getClientResourceID());//required
+
+//get the balance before change
+$res = $wt3->getBalance();
+$des_val0 = displayBalances($res, 4);
+
+$res = $api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
+
+print_r($res['success']);
 
 //wait for the close of ledger
 echo 'Wait for ledger closing.';
@@ -174,7 +263,7 @@ sleep(1);
 }
 echo "\n";
 //Should notice the change in the balances
-$res = $wt2->getBalance();
+$res = $wt3->getBalance();
 $des_val1 = displayBalances($res, 4);
 
 if ( ($des_val1 - $des_val0 ) == $pay_value )
@@ -182,5 +271,6 @@ if ( ($des_val1 - $des_val0 ) == $pay_value )
 else{
   echo "Destination account change from $des_val0 to $des_val1\nDiffernt from $pay_value\n";
 }
-
+}else
+  echo "No payment path is available! \n";
 ?>

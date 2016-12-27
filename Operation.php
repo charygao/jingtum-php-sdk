@@ -53,7 +53,7 @@ if (! function_exists('json_decode')) {
 /**
  * 命令定义
  */
-define('BALANCES', '/accounts/{0}/balances');
+define('BALANCES', '/accounts/{0}/balances/');
 define('PAYMENT_PATHS', '/accounts/{0}/payments/paths/');
 define('PAYMENTS', '/accounts/{0}/payments/');
 define('ORDERS', '/accounts/{0}/orders/');
@@ -69,7 +69,7 @@ define('SETTINGS', '/accounts/{0}/settings/');
 //base class
 abstract class OperationClass
 {
-//All the operations need to have a source account
+    //All the operations need to have a source account
     //to start with.
     protected $src_address = '';
     protected $src_secret = '';
@@ -115,19 +115,42 @@ abstract class OperationClass
      * Set the operation mode to 
      * true - Synchronous mode
      * false - Asynchronous Mode
-     * 
+     * Note the input need to be a string instead
+     * of boolean. 
      */
     public function setValidate($in_sync)
     {
-       $this->sync = $in_sync;
        //may need to check if the value is boolean or not
+       //The flag need to be a string instead of bool
+       if ( is_bool($in_sync) ){
+         if ( $in_sync === true )
+           $this->sync = 'true';
+         else{
+           if ( $in_sync === false )
+             $this->sync = 'false';
+           else
+             throw new Exception('Error in input value!');
+         }
+       }else
+       {
+         if ( is_string($in_sync) ){
+           if ( trim($in_sync) == 'true' )
+             $this->sync = 'true';
+           else{
+             if ( trim($in_sync) == 'false' )
+               $this->sync = 'false';
+             else
+               throw new Exception('Error in input value!');
+           }
+         }
+      }  
+    }//end function
+
+    public function setSyn($in_var)
+    {
+      $this->setValidate($in_var);
     }
 
-    public function setSyn($in_sync)
-    {
-       $this->sync = $in_sync;
-       //may need to check if the value is boolean or not
-    }
 
     /**
      *

@@ -108,7 +108,7 @@ class Tum
 /*
 value   String  余额
 currency        String  货币名称，三个字母或是40个字符的字符串
-counterparty    String  货币发行方
+counterparty    String  货币发行方, this is different from issuer
 */
 class Amount extends Tum
 {
@@ -124,6 +124,7 @@ class Amount extends Tum
 
     public function setValue($in_value)
     {
+      if ( is_numeric($in_value ))
         $this->value = strval($in_value);
     }
 

@@ -180,7 +180,7 @@ class APIServer extends ServerClass
     {
         //Generate a full url with server address and API version
         //info
-        $url = $this->serverURL . '/' . $this->version . $in_cmd['url'];
+        $url = $this->serverURL .'/'. $this->version . $in_cmd['url'];
         
         /*Handles different API version
          * This part doesn't work by 09/25/2016

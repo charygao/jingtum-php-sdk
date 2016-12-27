@@ -43,6 +43,7 @@ require_once 'vendor/autoload.php';
 use JingtumSDK\lib\SnsNetwork;
 use JingtumSDK\lib\ECDSA;
 use JingtumSDK\AccountClass;
+use JingtumSDK\Wallet;
 use WebSocket\Client;
 
 require_once './lib/ECDSA.php';
@@ -410,7 +411,7 @@ class FinGate extends AccountClass
         //operation
         $cmd['method'] = 'POST';
         $cmd['params'] = $params;
-        $cmd['url'] = str_replace("{0}", $this->address, PAYMENTS) . '?validated=false';
+        $cmd['url'] = str_replace("{0}", $this->address, PAYMENTS) . '?validated=true';
 
         return $cmd;
     }
@@ -425,15 +426,24 @@ class FinGate extends AccountClass
     */
     public function createWallet()
     {
-        $ecdsa = new ECDSA();
+/*        $ecdsa = new ECDSA();
         $ecdsa->generateRandomPrivateKey();
 
         $secret = $ecdsa->getWif();
         $address = $ecdsa->getAddress();
 
         $ret = new Wallet($address, $secret);
-        $ret->setAPIServer($this->APIServer);
-        return $ret;
+        $ret->setAPIServer($this->APIServer);*/
+      //API /v1/uuid，GET method
+        $ret = $this->APIServer->getNewWalletFromServer();
+        if ( $ret['success'] == true ){
+        $wt = new Wallet($ret['wallet']['address'], $ret['wallet']['secret']);
+        return $wt;
+        }
+        else{
+          throw new Exception('Error in creating the new Wallet');
+          
+        }
     }
 
 
