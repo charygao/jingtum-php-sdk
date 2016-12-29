@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PHP SDK for Jingtum network； OperationClass
  * @version 1.0.0
@@ -26,22 +27,7 @@
  */
 namespace JingtumSDK;
 
-/**
- * 命令常量定义
- */
-define('BALANCES', '/accounts/{0}/balances/');
-define('PAYMENT_PATHS', '/accounts/{0}/payments/paths/');
-define('PAYMENTS', '/accounts/{0}/payments/');
-define('ORDERS', '/accounts/{0}/orders/');
-define('ORDERBOOK', '/accounts/{0}/order_book/');
-define('TRUST_LINES', '/accounts/{0}/trustlines/');
-define('RELATIONS', '/accounts/{0}/relations/');
-define('CORELATIONS', '/accounts/{0}/co-relations/');
-define('TRANSACTIONS', '/accounts/{0}/transactions/');
-define('OPERATIONS', '/accounts/{0}/operations/');
-define('MESSAGES', '/accounts/{0}/messages/');
-define('SETTINGS', '/accounts/{0}/settings/');
-
+require_once './lib/Constants.php';
 
 //base class
 abstract class OperationClass
@@ -51,7 +37,7 @@ abstract class OperationClass
     protected $src_address = '';
     protected $src_secret = '';
     protected $sync = 'true';
-    protected $serverURL= NULL;
+    protected $api_server = NULL;
     // Force Extending class to define this method
     // All the operation methods should contain this
     // but can define it differently.
@@ -69,6 +55,7 @@ abstract class OperationClass
       if ( is_object($in_wallet)){
         $this->src_address = $in_wallet->getAddress();
         $this->src_secret = $in_wallet->getSecret();
+        $this->api_server = $in_wallet->getAPIServer();
       }
     }
 
@@ -132,46 +119,5 @@ abstract class OperationClass
       $this->setValidate($in_var);
     }
 
-
-    {
-    /*
-     * Submit the operations to the Jingtum server
-     * The input contains following info
-     * method = 'GET', 'POST', 'DEL' for network requests
-     * url = URL used for commands
-     * params = Parameters needed to post to the server.
-     * Example:
-        $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}", $this->address, BALANCES);
-        $cmd['params'] = '';
-    */
-    protected function submitRequest($in_cmd)
-    {
-        //Generate a full url with server address and API version
-        //info
-        $url = $this->serverURL .'/'. $this->version . $in_cmd['url'];
-
-        /*Handles different API version
-         * This part doesn't work by 09/25/2016
-         */
-        if ($this->version == 'v2') {
-            $res = buildSignString($in_address, $in_secret);
-
-            $params['k'] = $res['k'];
-            $params['s'] = $res['s'];
-            $params['h'] = $res['h'];
-            $params['t'] = $res['t'];
-        }
-
-        echo "\nSubmitting......\n$url\n";
-        print_r($in_cmd['params']);
-        //Submit the parameters to the SERVER
-        $ret = SnsNetwork::api($url,
-          json_encode($in_cmd['params']),
-          $in_cmd['method']);
-        return $ret;
-
-    }
-
 }
-
+?>

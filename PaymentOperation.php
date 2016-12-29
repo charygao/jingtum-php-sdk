@@ -59,7 +59,6 @@ class PaymentOperation extends OperationClass
      function __construct($address) {
        parent::__construct($address);
        //print "In SubClass constructor\n";
-       $this->src_secret = '';
        $this->dest_address = '';       
        $this->amount['value'] = '';
        $this->amount['currency'] = '';
@@ -112,6 +111,8 @@ class PaymentOperation extends OperationClass
         
         //info to submit
         $params['secret'] = $this->src_secret;
+        
+        $this->client_resource_id = $this->api_server->getClientResourceID();
         $params['client_resource_id'] = $this->client_resource_id;
         $params['payment'] = $payment;
         
@@ -120,7 +121,7 @@ class PaymentOperation extends OperationClass
         $cmd['params'] = $params;
 
         //submit the command and return the results 
-        return $cmd;
+return $this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret);
     }
     
 }

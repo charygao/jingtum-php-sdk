@@ -38,7 +38,6 @@
  */
 namespace JingtumSDK;
 
-require_once 'vendor/autoload.php';
 
 use JingtumSDK\lib\SnsNetwork;
 use JingtumSDK\lib\ECDSA;
@@ -46,9 +45,11 @@ use JingtumSDK\AccountClass;
 use JingtumSDK\Wallet;
 use WebSocket\Client;
 
+require_once 'vendor/autoload.php';
 require_once './lib/ECDSA.php';
 require_once './lib/SnsNetwork.php';
 require_once './lib/ConfigUtil.php';
+require_once './lib/Constants.php';
 require_once 'AccountClass.php';
 require_once 'Wallet.php';
 
@@ -67,14 +68,6 @@ if (! function_exists('json_decode')) {
     throw new Exception('JingtumSDK needs the JSON PHP extension.');
 }
 
-/**
- *  CONSTANTS
- */
-define('ISSUE_TUM', 'IssueTum');
-define('QUERY_ISSUE', 'QueryIssue');
-define('QUERY_TUM', 'QueryTum');
-define('MIN_ACT_AMOUNT','25');
-
 class FinGate extends AccountClass 
 {
     //internal prefix to create transaction ID
@@ -88,7 +81,7 @@ class FinGate extends AccountClass
 
     private static $instance = NULL;
 
-    private $APIServer = NULL;
+    private $api_server = NULL;
 
     //Variables used to issue custom Tum
     private $token = '';
@@ -110,11 +103,11 @@ class FinGate extends AccountClass
     /**
      * Set API Server, reserved for future usage. 
      */
-    public function setAPIServer($in_server)
+    public function setAPIserver($in_server)
     {
         //Init the Server class object
         if ( is_object($in_server) ){
-          $this->APIServer = $in_server;
+          $this->api_server = $in_server;
           return true;
         }
         else{
@@ -412,8 +405,8 @@ class FinGate extends AccountClass
         $cmd['method'] = 'POST';
         $cmd['params'] = $params;
         $cmd['url'] = str_replace("{0}", $this->address, PAYMENTS) . '?validated=true';
-
-        return $cmd;
+        return $this->api_server->submitRequest($cmd, $this->address, $this->secret);
+        //return $cmd;
     }
  
     /**
@@ -433,9 +426,9 @@ class FinGate extends AccountClass
         $address = $ecdsa->getAddress();
 
         $ret = new Wallet($address, $secret);
-        $ret->setAPIServer($this->APIServer);*/
+        $ret->setAPIserver($this->api_server);*/
       //API /v1/uuid，GET method
-        $ret = $this->APIServer->getNewWalletFromServer();
+        $ret = $this->api_server->getNewWalletFromServer();
         if ( $ret['success'] == true ){
         $wt = new Wallet($ret['wallet']['address'], $ret['wallet']['secret']);
         return $wt;
@@ -448,3 +441,4 @@ class FinGate extends AccountClass
 
 
 }
+?>

@@ -4,7 +4,9 @@
  * Showed how to use FinGate to create a new wallet,
  * active it, then check the balance of the 
  * new wallet.
- *  
+ * Add the test of sending SWT from the new wallet
+ * to the FinGate to make sure the address/secret
+ * pair works fine.
  * 
  */
 use JingtumSDK\AccountClass;
@@ -21,7 +23,7 @@ require_once 'Wallet.php';
 require_once 'FinGate.php';
 require_once 'Server.php';
 require_once 'Tum.php';
-require_once 'Operation.php';
+require_once 'PaymentOperation.php';
 
 //Display the balance in the account
 function displayBalances($res, $j = 0){
@@ -68,6 +70,9 @@ printf("%s\n",$fin_gate->getAddress());
 printf("%s\n",$fin_gate->getSecret());
 
 $fin_gate->setAPIServer($api_server);
+//Set up the minimum active amount to active the Wallet
+//if needed. Otherwise FinGate uses the default amount.
+$fin_gate->setActivateAmount(25);
 //Create the new wallet using the FinGate function
 $wallet1 = $fin_gate->createWallet();
 //print_r($wallet1);
@@ -75,9 +80,6 @@ echo "Get new wallet\n";
 echo "Address:". $wallet1->getAddress()."\n";
 echo "Secret:".$wallet1->getSecret()."\n";
 
-//Active the new wallet, set up the minimum active amount
-//if needed. Otherwise FinGate uses the default amount.
-$fin_gate->setActivateAmount(25);
 
 //Setup the API server used in the FinGate
 $res = $api_server->submitRequest($fin_gate->activeWallet($wallet1->getAddress()));
@@ -104,18 +106,17 @@ $pay_value = 0.1;
 //$payreq->setDestAmount($tong1->getTumAmount($pay_value));
 //2. or use amount object
 $amt1 = new Amount('SWT', '', $pay_value);
-$payreq = new PaymentOperation($wallet1->getAddress());
-$payreq->setSrcSecret($wallet1->getSecret());
+$payreq = new PaymentOperation($wallet1);
 $payreq->setDestAddress($wt3->getAddress());//required
-
 $payreq->setDestAmount($amt1->getAmount());
 
 $payreq->setValidate('false');//optional, setup the syn mode, default is true
-$payreq->setResourceID($api_server->getClientResourceID());//required
 
 //3.2 Submit the payment operation
 //submit the request
-$res = $api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
+$res = $payreq->submit();
+
+var_dump($res);
 sleep(10);
 
 echo "************Make payment with $pay_value SWT***************\n";

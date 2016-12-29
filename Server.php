@@ -112,7 +112,7 @@ class APIServer extends ServerClass
     private $prefix = 'prefix';
 
     //internal counter to generate transaction ID
-    private $uuid = 0;
+    private static $uuid = 0;
     
     //Declare the instance 
     private static $instance = NULL;
@@ -204,6 +204,14 @@ class APIServer extends ServerClass
         
     }
 
+    //Set the prefix used for UUID
+    public function setPrefix($in_str)
+    {
+      if ( is_string($in_str))
+        $this->prefix = $in_str;
+      else
+        echo "Input need to be a valid string";  
+    }
     //Check if the server is connected
     public function getConnected()
     {

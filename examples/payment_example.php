@@ -158,8 +158,8 @@ $payreq->setValidate('false');//optional, setup the syn mode, default is true
 $res = $payreq->submit();
 //$api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
 echo "************Make payment with $pay_value SWT***************\n";
-//print_r($res);
-echo "***************************\n";
+print_r($res);
+echo "************Check for the balance change***************\n";
 
 //3.3.
 //need to wait until the blockchain ledger close, usually 5-10 seconds
