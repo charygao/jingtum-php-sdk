@@ -28,7 +28,7 @@ class SnsNetwork
      *            协议类型 http / https
      * @return array 结果数组
      */
-    public function api($url, $params, $method = 'post', $json = 'true')
+    static public function api($url, $params, $method = 'post', $json = 'true')
     {
         // 发起请求
         $ret = SnsNetwork::makeRequest($url, $params, $method, $json);

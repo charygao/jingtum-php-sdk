@@ -49,9 +49,8 @@ $res = $tum_server->submitRequest($fin_gate->queryCustomTum($fg1->tum1));
 //var_dump($res);
 printf("Tum name: %s, Amount issued: %s\n", $res["name"], $res['circulation']);
 
-//Issue new Tum amount
-$uuid = $fin_gate->getClientResourceID();
-$res = $tum_server->submitRequest($fin_gate->issueCustomTum($uuid, $fg1->tum1, 1118.16));
+//Issue new Tum with Tum amount
+$res = $fin_gate->issueCustomTum($uuid, $fg1->tum1, 1118.16);
 if ( is_string(json_encode($res))){
 //  printf("Tum: %s, issue amount: %s\n", $res["name"],$res['amount']);
   if ( $res['code'] == 0)

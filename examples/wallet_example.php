@@ -7,7 +7,8 @@
  * Add the test of sending SWT from the new wallet
  * to the FinGate to make sure the address/secret
  * pair works fine.
- * 
+ * Following methods in the class are tested:
+ *  
  */
 use JingtumSDK\AccountClass;
 use JingtumSDK\FinGate;

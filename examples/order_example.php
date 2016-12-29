@@ -8,7 +8,6 @@
  */
 use JingtumSDK\FinGate;
 use JingtumSDK\Wallet;
-use JingtumSDK\TumServer;
 use JingtumSDK\Tum;
 use JingtumSDK\Amount;
 use JingtumSDK\APIServer;
@@ -16,10 +15,10 @@ use JingtumSDK\OrderOperation;
 use JingtumSDK\RemoveOrderOperation;
 
 require_once 'lib/ConfigUtil.php';
-require_once 'FinGate.php';
 require_once 'Server.php';
 require_once 'Wallet.php';
-require_once 'Operation.php';
+require_once 'OrderOperation.php';
+require_once 'RemoveOrderOperation.php';
 require_once 'Tum.php';
 
 //Display the return of the orders 
@@ -32,6 +31,7 @@ if ( $res['success'] == true ){
     echo "Total $num orders:\n";
     for ( $i = 0; $i < $num; $i ++){
       $type = $res['orders'][$i]['type'];
+//      $seq = $res['orders'][$i]['seq'];
       $code = $res['orders'][$i]['taker_gets']['currency'];
       $value = $res['orders'][$i]['taker_gets']['value'];
       $code1 = $res['orders'][$i]['taker_pays']['currency'];
@@ -91,19 +91,18 @@ $amt2['value'] = $get_value;
 echo "=======Build the order===================\n";
 //Building a payment operation
 //
-$req3 = new OrderOperation($wt0->getAddress());
-$req3->setSrcSecret($wt0->getSecret());
+$req3 = new OrderOperation($wt0);
 $req3->setOrderType('buy');//required
 $req3->setTakePays($amt1);               //required
 $req3->setTakeGets($amt2);               //required
 //Submit order
-$ret = $api_server->submitRequest($req3->build(), $wt0->getAddress(), $wt0->getSecret());
+$ret = $req3->submit();
 
 if ( $ret['success'] == true ){
   $pass ++;
   print_r(json_encode($ret));
-  //$order_hash = $ret['hash'];
-  $order_hash = $ret['sequence'];
+  //$order_id = $ret['hash'];
+  $order_id = $ret['sequence'];
   goto cancel_order;
 }else{
   $fail ++;
@@ -114,12 +113,11 @@ cancel_order:
 //to cancel a submitted order, need to wait until the ledger closed
 //then cancel it
 sleep(10);
-if ( ! empty($order_hash) ){
-  echo "\nCancelling order $order_hash\n";
-  $cancel_req = new RemoveOrderOperation($wt0->getAddress());
-  $cancel_req->setSrcSecret($wt0->getSecret());
-  $cancel_req->setOrderNum($order_hash);
-  $ret = $api_server->submitRequest($cancel_req->build(), $wt0->getAddress(), $wt0->getSecret());
+if ( ! empty($order_id) ){
+  echo "\nCancelling order $order_id\n";
+  $cancel_req = new RemoveOrderOperation($wt0);
+  $cancel_req->setOrderNum($order_id);
+  $ret = $cancel_req->submit();
   print_r($ret); 
 }
 return;

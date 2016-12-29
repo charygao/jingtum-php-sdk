@@ -117,6 +117,22 @@ class FinGate extends AccountClass
     }
 
     /**
+     * Set Tum Server
+     */
+    public function setTumserver($in_server)
+    {
+        //Init the Server class object
+        if ( is_object($in_server) ){
+          $this->tum_server = $in_server;
+          return true;
+        }
+        else{
+          return false;
+        }
+
+    }
+
+    /**
      *
      * @return FinGate object
      * The same as get FinGate
@@ -302,7 +318,7 @@ class FinGate extends AccountClass
      */
     public function issueCustomTum($uuid, $currency, $amount)
     {
-        //Need to convert the input into two decimal float
+        //Need to convert the input into a float with two decimal
         $formatted_amount = sprintf("%01.2f", $amount);
        
         $params['cmd'] = ISSUE_TUM;
@@ -319,8 +335,7 @@ class FinGate extends AccountClass
         $cmd['method'] = 'POST';
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';        
-
-        return $cmd;
+return $this->tum_server->submitRequest($cmd);
 
     }
 
@@ -344,6 +359,7 @@ class FinGate extends AccountClass
         $cmd['method'] = 'POST'; 
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';//QUERY_ISSUE_API; 
+return $this->tum_server->submitRequest($cmd);
         return $cmd;
     }
 
@@ -374,6 +390,7 @@ class FinGate extends AccountClass
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';
  
+return $this->tum_server->submitRequest($cmd);
         return $cmd;
     }
 
@@ -406,7 +423,6 @@ class FinGate extends AccountClass
         $cmd['params'] = $params;
         $cmd['url'] = str_replace("{0}", $this->address, PAYMENTS) . '?validated=true';
         return $this->api_server->submitRequest($cmd, $this->address, $this->secret);
-        //return $cmd;
     }
  
     /**
