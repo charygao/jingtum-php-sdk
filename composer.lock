@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "5bbfe21bec6720c56969f5d095b5f9eb",
-    "content-hash": "b1f308f1a0360b77d51daae7dcb17f94",
+    "hash": "8bc67b0c5692cc5c511aceb736515d85",
+    "content-hash": "26f111ef795904da821af8027171606e",
     "packages": [
         {
             "name": "textalk/websocket",
@@ -17,7 +17,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://packagist.phpcomposer.com/files/Textalk/websocket-php/bfa18bb6bf523680c7803f6b04694fbbf2f67bbf.zip",
+                "url": "https://api.github.com/repos/Textalk/websocket-php/zipball/bfa18bb6bf523680c7803f6b04694fbbf2f67bbf",
                 "reference": "bfa18bb6bf523680c7803f6b04694fbbf2f67bbf",
                 "shasum": ""
             },

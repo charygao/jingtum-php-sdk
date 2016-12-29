@@ -17,7 +17,7 @@ require_once 'lib/ConfigUtil.php';
 require_once 'FinGate.php';
 require_once 'Server.php';
 require_once 'Wallet.php';
-require_once 'Operation.php';
+require_once 'PaymentOperation.php';
 require_once 'Tum.php';
 
 //A simple function to display the 
@@ -103,6 +103,7 @@ $api_server->setTest(true);
 
 src_account:
 $wt2 = new Wallet($test_wallet2->address, $test_wallet2->secret);
+
 if ( $wt2->setAPIServer($api_server)){
   $res = $wt2->getBalance();
   echo $wt2->getAddress();
@@ -133,33 +134,29 @@ if ( $wt3->setAPIServer($api_server)){
 //3.1 Create the payment operation 
 //Make payment from wallet0 to wallet2 using SWT
 //Building a payment operation
-$payreq = new PaymentOperation($wt2->getAddress());
-$payreq->setSrcSecret($wt2->getSecret());
-
-$payreq->setDestAddress($wt3->getAddress());//required
-
+$payreq = new PaymentOperation($wt2);
 
 
 $pay_value = 1.0;
 //goto CNY_payment;
-goto PATH_payment;
+//goto PATH_payment;
 
 SWT_payment:
 //Create the amount
 //1. use tum object to create one
 $pay_value = 1.0;
-//$tong1 = new Tum('SWT');
-//$payreq->setDestAmount($tong1->getTumAmount($pay_value));
 //2. or use amount object 
 $amt1 = new Amount('SWT', '', $pay_value);
 $payreq->setDestAmount($amt1->getAmount());
 
+$payreq->setDestAddress($wt3->getAddress());//required
+
 $payreq->setValidate('false');//optional, setup the syn mode, default is true
-$payreq->setResourceID($api_server->getClientResourceID());//required
 
 //3.2 Submit the payment operation 
-//submit the request
-$res = $api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
+//submit the request using the default server within the source wallet
+$res = $payreq->submit();
+//$api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
 echo "************Make payment with $pay_value SWT***************\n";
 //print_r($res);
 echo "***************************\n";
@@ -181,6 +178,8 @@ else{
 }
 
 displayPayments($wt3->getPaymentList());
+
+return;
 
 /***************************************/
 //Step 4.

@@ -32,7 +32,8 @@ namespace JingtumSDK;
 
 require_once('vendor/autoload.php');
 require_once 'AccountClass.php';
-require_once 'Operation.php';
+//require_once 'Operation.php';
+require_once 'OperationClass.php';//use the constants only
 require_once 'Server.php';
 require_once './lib/SignUtil.php';
 require_once './lib/ECDSA.php';
