@@ -55,7 +55,8 @@ if ( $res['success'] == true ){
 }
 }
 
-//Display the balance in the account
+//A simple function to display the
+//display the balance in the account
 function displayBalances($res, $j = 0){
   $return_value = -999;
   if ( $res['success'] == true ){
@@ -79,7 +80,9 @@ else
 }
 
 /***************************************/
+// Main test program
 //Read in the test configuration and data
+/***************************************/
 $test_data = readTestData("examples/test_data.json");
 
 if ( $test_data == false ){
@@ -130,12 +133,11 @@ if ( $wt3->setAPIServer($api_server)){
 
 /***************************************/
 //Step 3.
-//Make the SWT payment
+//Make the SWT payment between two accounts
 //3.1 Create the payment operation 
 //Make payment from wallet0 to wallet2 using SWT
 //Building a payment operation
 $payreq = new PaymentOperation($wt2);
-
 
 $pay_value = 1.0;
 //goto CNY_payment;
@@ -156,13 +158,13 @@ $payreq->setValidate('false');//optional, setup the syn mode, default is true
 //3.2 Submit the payment operation 
 //submit the request using the default server within the source wallet
 $res = $payreq->submit();
-//$api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
+
 echo "************Make payment with $pay_value SWT***************\n";
 print_r($res);
-echo "************Check for the balance change***************\n";
 
 //3.3.
 //need to wait until the blockchain ledger close, usually 5-10 seconds
+echo "************Check for the balance change***************\n";
 sleep(10);
 
 //3.4
@@ -179,7 +181,16 @@ else{
 
 displayPayments($wt3->getPaymentList());
 
-return;
+//Doing reverse payment from wt3 to wt2
+$rev_payreq = new PaymentOperation($wt3);
+
+//2.use the same amount object
+$rev_payreq->setDestAmount($amt1->getAmount());
+
+$rev_payreq->setDestAddress($wt2->getAddress());//required
+$res = $rev_payreq->submit();
+echo "************Make reverse payment with $pay_value SWT***************\n";
+print_r($res);
 
 /***************************************/
 //Step 4.

@@ -1,7 +1,6 @@
 <?php
 /*
- * PHP SDK example code
- * Showed how to check the orders
+ * PHP SDK example code for order process
  * submit order with SWT, CURRENCY, and Tum
  * Require test data set
  * test_data.json 
@@ -31,12 +30,12 @@ if ( $res['success'] == true ){
     echo "Total $num orders:\n";
     for ( $i = 0; $i < $num; $i ++){
       $type = $res['orders'][$i]['type'];
-//      $seq = $res['orders'][$i]['seq'];
+      $seq = $res['orders'][$i]['sequence'];
       $code = $res['orders'][$i]['taker_gets']['currency'];
       $value = $res['orders'][$i]['taker_gets']['value'];
       $code1 = $res['orders'][$i]['taker_pays']['currency'];
       $value1 = $res['orders'][$i]['taker_pays']['value'];
-      echo "$type : $value $code for $value1 $code1\n";
+      echo "Order $seq $type : $value $code for $value1 $code1\n";
     }
   }
 }
@@ -121,42 +120,5 @@ if ( ! empty($order_id) ){
   print_r($ret); 
 }
 return;
-//Another account to bid the order
-dest_account:
-$wt2 = new Wallet($test_wallet3->address, $test_wallet3->secret);
-//To use the get method
-if ( $wt2->setAPIServer($api_server)){
-
-$res = $wt2->getBalance('SWT');
-echo $wt2->getAddress();
-displayBalances($res);
-}
-
-SWT_payment:
-//Make payment from wallet0 to wallet2
-//Building a payment operation
-$payreq = new PaymentOperation($wt0->getAddress());
-$payreq->setSrcSecret($wt0->getSecret());
-
-$payreq->setDestAddress($wt2->getAddress());//required
-
-//Create the amount
-$tong1 = new Tum('SWT');
-$payreq->setDestAmount($tong1->getTumAmount(1.0));
-//required
-//$payreq->addPath($find_path);//optional, if no path provided, use empty
-//$payreq->setSyn('true');//optional, setup the syn mode, default is true
-//$payreq->setSyn('false');//optional, setup the syn mode, default is true
-//$payreq->setValidate('false');//optional, setup the syn mode, default is true
-$payreq->setResourceID($api_server->getClientResourceID());//required
-
-//submit the request
-$res = $api_server->submitRequest($payreq->build(), $wt2->getAddress(), $wt2->getSecret());
-print_r($res);
-
-//check the balance after the payment
-$res = $wt2->getBalance('SWT');
-echo $wt2->getAddress();
-displayBalances($res);
 
 ?>

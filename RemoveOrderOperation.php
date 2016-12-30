@@ -54,7 +54,7 @@ class RemoveOrderOperation extends OperationClass
     public function setOrderNum($in_order_num)
     {
        //check if the value is valid
-       $int_order = strint($in_order_num);
+       $int_order = strval($in_order_num);
        if ($int_order > 0 )
          $this->order_num = $in_order_num;
        else{
@@ -68,7 +68,9 @@ class RemoveOrderOperation extends OperationClass
     {
         $cmd['method'] = 'DELETE';
         $cmd['url'] = str_replace("{0}", $this->src_address, ORDERS).$this->order_num;
-        $cmd['params'] = $this->src_secret;
+        $params['secret'] = $this->src_secret;
+
+        $cmd['params']= $params;
         
         //submit the command and return the results 
         return $this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret);

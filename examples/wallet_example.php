@@ -52,6 +52,8 @@ else
 //Read in the test configuration and data
 $test_data = readTestData("examples/test_data.json");
 
+
+
 //Setup the API server using DEV server configurations.
 //Check if the initialization is successful
 //Then start the wallet operations.
@@ -74,6 +76,7 @@ $fin_gate->setAPIServer($api_server);
 //Set up the minimum active amount to active the Wallet
 //if needed. Otherwise FinGate uses the default amount.
 $fin_gate->setActivateAmount(25);
+
 //Create the new wallet using the FinGate function
 $wallet1 = $fin_gate->createWallet();
 //print_r($wallet1);
@@ -83,7 +86,9 @@ echo "Secret:".$wallet1->getSecret()."\n";
 
 
 //Setup the API server used in the FinGate
-$res = $api_server->submitRequest($fin_gate->activeWallet($wallet1->getAddress()));
+$res = $fin_gate->activeWallet($wallet1->getAddress());
+var_dump($res);
+
 //Wait for ledger close
 sleep(10);
 //var_dump($res);
@@ -96,6 +101,7 @@ $src_val0 = displayBalances($res, 0);
 
 payment_test:
 //payback the FinGate for testing
+//This need to create a wallet class
 $wt3 = new Wallet($fg1->address, $fg1->secret);
 $wt3->setAPIServer($api_server);
 $res = $wt3->getBalance();

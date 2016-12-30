@@ -103,6 +103,7 @@ class Wallet extends AccountClass
 
     //API server address
     private $APIServer = NULL;//Server
+    private $path_key_list = NULL;
 
     function __construct($address, $secret)
     {
@@ -270,6 +271,59 @@ class Wallet extends AccountClass
     }
 
     /**
+     * Using the input path list
+     * to compute the key 
+     * and saved in the interal array
+     * using sha1
+     * @param path $in_path
+     * @return key as the hash of path
+     */
+    private function setPathKeyList($in_path_list)
+    {
+      $ecdsa = new ECDSA();
+
+      $path_num = count($in_path_list);
+
+      //reset the internal path list to set
+      //the new paths
+      $this->path_key_list = array();
+      $key_list = array();
+      for ( $i = 0; $i < $path_num; $i++)
+      {
+        //build a key/pair
+        $path_pair['value'] = $in_path_list[$i]['paths'];
+        //$key_list[] = $ecdsa->hash256($path_pair['value']) ;
+        $key_list[] = $ecdsa->hash160($path_pair['value']) ;
+        $path_pair['key'] = $key_list[$i]; 
+
+        $this->path_key_list[] = $path_pair;
+        echo $path_pair['key']." : ".$path_pair['value']."\n";
+      }
+
+      return $key_list;
+    }
+
+    /**
+     * Generate the key from input path
+     * using sha1
+     * @param path $in_path
+     * @return key as the hash of path
+     */
+    public function getPathByKey($in_key)
+    {
+      $find_path = NULL;
+      $i = 0;
+      while ($i < count($this->path_key_list))
+      {
+        if ( strcmp($this->path_key_list[$i]['key'], $in_key ) == 0){
+          $find_path = $this->path_key_list[$i]['value'];
+          break;
+        }
+        $i++;
+      }
+      return $find_path;
+    }
+    /**
      *
      * @param unknown $dest_address            
      * @param unknown $amount            
@@ -290,9 +344,21 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, PAYMENT_PATHS). $dest_address. '/' .$payment;
         $cmd['params'] = '';
         
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->APIServer)){
+          $ret = $this->APIServer->submitRequest($cmd,
              $this->address, $this->secret);
+//Added the sha function
+          echo "******************\n";
+          var_dump($ret);
+          echo "******************\n";
+          if ( $ret['success'] == 'true' ){
+            //Loop throu the pathList
+            //and hash them
+            $new_ret['success'] = 'true';
+            $new_ret['payments'] =  $this->setPathKeyList($ret['payments']);
+            return $new_ret;
+          } 
+        }
         else
            throw new Exception('API Server is not ready!');
     }
@@ -392,7 +458,8 @@ class Wallet extends AccountClass
     }
 
     /**
-     *
+     * Using input options to 
+     * filter out the transactions of the account.
      * @param string $id
      * 查询单个交易记录信息
      * @return multitype:

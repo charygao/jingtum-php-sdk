@@ -139,7 +139,7 @@ class APIServer extends ServerClass
         }        
 
         try {
-
+          $this->uuid = 0;
           $this->version = $this->config->PRO->api_version;
           if ( $this->version != 'v1' && $this->version != 'v2')
             throw new Exception('API version error!');
