@@ -16,17 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * contains the following API 
+ * Contains the following API functions
  * getOrderBook	获得货币对的挂单列表
  * getOrder	获得尚未成交的单个挂单
  * getOrderList	获得尚未成交的挂单列表
  * getPayment	查询单个支付信息
  * getTransaction	查询单个交易记录信息
- * getWallet	获得当前钱包地址和私钥
- * setActivated	设置钱包激活的状态
- * getPaymentList      
- * getTransactionList
- * 
+ * getWallet	获得当前账号地址和私钥
+ * getPaymentList     获得当前账号的支付记录 
+ * getTransactionList 获得当前账号的交易记录
  */
 namespace JingtumSDK;
 
@@ -254,12 +252,10 @@ class Wallet extends AccountClass
      * @param string $counter_party            
      * @return multitype:
      */
-    public function getBalance($currency = '', $counter_party = '')
+    public function getBalance()
     {
       $cmd['method'] = 'GET';
       $cmd['url'] = str_replace("{0}",$this->address, BALANCES);
-
-      $ecdsa =  new ECDSA();
 
       $cmd['params'] = '';
 
@@ -297,7 +293,7 @@ class Wallet extends AccountClass
         $path_pair['key'] = $key_list[$i]; 
 
         $this->path_key_list[] = $path_pair;
-        echo $path_pair['key']." : ".$path_pair['value']."\n";
+//        echo $path_pair['key']." : ".$path_pair['value']."\n";
       }
 
       return $key_list;
@@ -347,10 +343,10 @@ class Wallet extends AccountClass
         if ( is_object($this->APIServer)){
           $ret = $this->APIServer->submitRequest($cmd,
              $this->address, $this->secret);
-//Added the sha function
-          echo "******************\n";
-          var_dump($ret);
-          echo "******************\n";
+          //Added the sha function
+          //echo "******************\n";
+          //var_dump($ret);
+          //echo "******************\n";
           if ( $ret['success'] == 'true' ){
             //Loop throu the pathList
             //and hash them
@@ -385,79 +381,6 @@ class Wallet extends AccountClass
 
 
     /**
-     *
-     * @param string $currency            
-     * @param string $counterparty            
-     * @param string $limit            
-     * @return multitype:
-     */
-    public function getTrustLineList($currency = '', $counterparty = '', $limit = '')
-    {
-        $params['currency'] = $currency;
-        $params['counterparty'] = $counterparty;
-        $params['limit'] = $limit;
-        
-        $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}",$this->address, TRUST_LINES);
-        $cmd['params'] = '';
-        
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
-             $this->address, $this->secret);
-        else
-           throw new Exception('API Server is not ready!');
-    }
-
-    /**
-     *
-     * @param string $type            
-     * @param string $counterparty            
-     * @param string $currency            
-     * @param string $marker            
-     * @return multitype:
-     */
-    public function getRelationList($type = '', $counterparty = '', $currency = '', $marker = '')
-    {
-        $params['currency'] = $currency;
-        $params['counterparty'] = $counterparty;
-        $params['type'] = $type;
-        $params['marker'] = $marker;
-
-        $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}",$this->address, RELATIONS);
-        $cmd['params'] = $params;
-        
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
-             $this->address, $this->secret);
-        else
-           throw new Exception('API Server is not ready!');
-    }
-
-     /**
-     *
-     * 获得对家关系列表
-     */
-    public function getCoRelationList($type = '', $counterparty = '', $currency = '', $marker = '')
-    {
-        $params['currency'] = $currency;
-        $params['counterparty'] = $counterparty;
-        $params['type'] = $type;
-        $params['marker'] = $marker;
-
-        //Create the parameters to be submitted to the Server
-        $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}", $this->address, CORELATIONS);
-        $cmd['params'] = $params;
-
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
-             $this->address, $this->secret);
-        else
-           throw new Exception('API Server is not ready!');
-    }
-
-    /**
      * Using input options to 
      * filter out the transactions of the account.
      * @param string $id
@@ -490,21 +413,4 @@ class Wallet extends AccountClass
            throw new Exception('API Server is not ready!');
     }
 
-    /**
-     *
-     * @return boolean
-     * Determine if an account is activated by 
-     * comparing the SWT with min limit.
-     */
-    public function isActived()
-    {
-        $balance = self::getBalance('SWT')['balances'][0];
-        print_r($balance); 
-        if ($balance['value'] >= 25) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-  
 }

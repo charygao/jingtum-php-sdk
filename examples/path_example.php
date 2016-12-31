@@ -153,26 +153,29 @@ $res = $wt2->getPathList($wt3->getAddress(), $amt1);
 
 //Get the new path list
 if ( count($res['payments']) > 0 ){
-echo "Find ".count($res['payments'])." paths\n";
-//choose the 1st path
-$key = $res['payments'][0];
+  echo "Find ".count($res['payments'])." paths\n";
+  for ($i = 0; $i<count($res['payments']); $i++){
+    echo "Path: ".$res['payments'][$i]."\n";
+  }
 
-echo "\nKey: ".$key."\n";
-$path = $wt2->getPathByKey($key);
+  //choose the 1st path
+  $key = $res['payments'][0];
 
-echo "Path: ".$path."\n";
+  echo "\nKey: ".$key."\n";
+  $path = $wt2->getPathByKey($key);
+  echo "Path: ".$path."\n";
 
-//Set it to the payment operation
-$payreq->setPath($path);
-$payreq->setValidate('false');//optional, setup the syn mode, default is true
+  //Set it to the payment operation
+  $payreq->setPath($path);
+  $payreq->setValidate('false');//optional, setup the syn mode, default is true
 
-//get the balance before change
-$res = $wt3->getBalance();
-$des_val0 = displayBalances($res, 4);
+  //get the balance before change
+  $res = $wt3->getBalance();
+  $des_val0 = displayBalances($res, 4);
 
-$res = $payreq->submit();
+  $res = $payreq->submit();
 
-print_r($res);
+  print_r($res);
 
 //wait for the close of ledger
 echo 'Wait for ledger closing.';
