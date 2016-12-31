@@ -1,7 +1,8 @@
 <?php
 /*
  * PHP SDK example code for order process
- * submit order with SWT, CURRENCY, and Tum
+ * submit order with SWT:CNY, and another one
+ * with CNY:SWT to match it. 
  * Require test data set
  * test_data.json 
  */
@@ -11,31 +12,87 @@ use JingtumSDK\Tum;
 use JingtumSDK\Amount;
 use JingtumSDK\APIServer;
 use JingtumSDK\OrderOperation;
-use JingtumSDK\RemoveOrderOperation;
+use JingtumSDK\CancelOrderOperation;
 
 require_once 'lib/ConfigUtil.php';
 require_once 'Server.php';
 require_once 'Wallet.php';
 require_once 'OrderOperation.php';
-require_once 'RemoveOrderOperation.php';
+require_once 'CancelOrderOperation.php';
 require_once 'Tum.php';
 
 //Display the return of the orders 
-function displayOrderList($res){
+function displayOrderList($ret){
 
-if ( $res['success'] == true ){
-//print_r($res);
-  if ( is_array($res['orders']) ){
-    $num = count($res['orders']);
+if ( $ret['success'] == true ){
+//print_r($ret);
+  if ( is_array($ret['orders']) ){
+    $num = count($ret['orders']);
     echo "Total $num orders:\n";
     for ( $i = 0; $i < $num; $i ++){
-      $type = $res['orders'][$i]['type'];
-      $seq = $res['orders'][$i]['sequence'];
-      $code = $res['orders'][$i]['taker_gets']['currency'];
-      $value = $res['orders'][$i]['taker_gets']['value'];
-      $code1 = $res['orders'][$i]['taker_pays']['currency'];
-      $value1 = $res['orders'][$i]['taker_pays']['value'];
+      $type = $ret['orders'][$i]['type'];
+      $seq = $ret['orders'][$i]['sequence'];
+      $code = $ret['orders'][$i]['taker_gets']['currency'];
+      $value = $ret['orders'][$i]['taker_gets']['value'];
+      $code1 = $ret['orders'][$i]['taker_pays']['currency'];
+      $value1 = $ret['orders'][$i]['taker_pays']['value'];
       echo "Order $seq $type : $value $code for $value1 $code1\n";
+    }
+  }
+}
+else
+  echo "Error in get OrderList\n";
+}
+
+
+//Display the transactions from return of the function
+function displayTransactionList($ret){
+
+if ( $ret['success'] == true ){
+//print_r($ret);
+  if ( is_array($ret['transactions']) ){
+    $num = count($ret['transactions']);
+    echo "Total $num transactions:\n";
+    for ( $i = 0; $i < $num; $i ++){
+      $type = $ret['transactions'][$i]['type'];
+      $time = $ret['transactions'][$i]['date'];
+      $code = $ret['transactions'][$i]['result'];
+      $fee = $ret['transactions'][$i]['fee'];
+      echo "Trans $type at $time : $code for $fee\n";
+    }
+  }
+}
+else
+  echo "Error in get OrderList\n";
+}
+
+//Check the order status from the 
+//transaction list of the wallet
+function checkOrderStatus($ret, $in_seq_id){
+
+if ( $ret['success'] == true ){
+//print_r($ret);
+  if ( is_array($ret['transactions']) ){
+    $num = count($ret['transactions']);
+    echo "Total $num transactions:\n";
+    //Go through the transaction list to
+    //search for the order seq id
+    $i = 0; 
+    while ($i < $num){
+      //For all the offer transactions
+      if ( $ret['transactions'][$i]['type'] == 'offernew'){
+        //Check if the seq id match the submitted
+        if ( $ret['transactions'][$i]['seq'] == $in_seq_id )
+        {
+          //Get the effects array
+          $effects = $ret['transactions'][$i]['effects'];
+          for ( $j = 0; $j < count($effects); $j ++ ){
+            echo 'Offer '.$in_seq_id.' status: '.$effects[$j]['effect']."\n";
+          }
+          break;
+        }
+      }
+      $i++;
     }
   }
 }
@@ -69,15 +126,26 @@ $api_server->setTest(true);
 src_account:
 $wt0 = new Wallet($test_wallet2->address, $test_wallet2->secret);
 if ( $wt0->setAPIServer($api_server)){
-$res = $wt0->getOrderList();
-displayOrderList($res);
+$ret = $wt0->getOrderList();
+echo "Address".$wt0->getAddress()."\n";
+displayOrderList($ret);
 
 }
 else
   echo 'Error in initing Wallet Server';
 
+$wt1 = new Wallet($test_wallet3->address, $test_wallet3->secret);
+if ( $wt1->setAPIServer($api_server)){
+$ret = $wt1->getOrderList();
+echo "Address".$wt1->getAddress()."\n";
+displayOrderList($ret);
+
+}
+else
+  echo 'Error in initing Wallet Server';
 //Submit an order and then cancel it
-echo "============submit order==============\n";
+echo "============Build two orders==============\n";
+
 //1 SWT with 10 CNY
 //create the two Amount object
 $pay_value = 1.0;
@@ -87,9 +155,9 @@ $amt1 = new Amount('SWT', '', $pay_value);
 $amt2['currency'] = $test_cny->currency;
 $amt2['issuer'] = $test_cny->issuer;
 $amt2['value'] = $get_value;
-echo "=======Build the order===================\n";
-//Building a payment operation
-//
+
+echo "=======Submit order 1===================\n";
+order1:
 $req3 = new OrderOperation($wt0);
 $req3->setOrderType('buy');//required
 $req3->setTakePays($amt1);               //required
@@ -98,27 +166,40 @@ $req3->setTakeGets($amt2);               //required
 $ret = $req3->submit();
 
 if ( $ret['success'] == true ){
-  $pass ++;
-  print_r(json_encode($ret));
-  //$order_id = $ret['hash'];
-  $order_id = $ret['sequence'];
-  goto cancel_order;
-}else{
-  $fail ++;
-  print_r(json_encode($ret));
-}  
-
-cancel_order:
-//to cancel a submitted order, need to wait until the ledger closed
-//then cancel it
-sleep(10);
-if ( ! empty($order_id) ){
-  echo "\nCancelling order $order_id\n";
-  $cancel_req = new RemoveOrderOperation($wt0);
-  $cancel_req->setOrderNum($order_id);
-  $ret = $cancel_req->submit();
-  print_r($ret); 
+  $ret = $wt0->getOrderList();
+  echo "Address".$wt0->getAddress()."\n";
+  displayOrderList($ret);
 }
+echo "=======Submit order 2===================\n";
+order2:
+$req3 = new OrderOperation($wt1);
+$req3->setOrderType('buy');//required
+$req3->setTakePays($amt2);               //required
+$req3->setTakeGets($amt1);               //required
+//Submit order
+$ret = $req3->submit();
+
+if ( $ret['success'] == true ){
+   echo "Order 2 is submitted\n";
+   $order_id = $ret['sequence'];
+//to check a submitted order, need to wait until the ledger closed
+sleep(10);
+  $ret = $wt1->getOrderList();
+  echo "Address".$wt1->getAddress()."\n";
+  displayOrderList($ret);
+//Check the order list 
+//and transactions to make sure the order is 
+//finished.
+$ret = $wt1->getTransactionList();
+//displayTransactionList($ret);
+checkOrderStatus($ret, $order_id);
+
+
+}else{
+  echo "Failed to submit the order!\n";
+  print_r(json_encode($ret));
+}
+
 return;
 
 ?>

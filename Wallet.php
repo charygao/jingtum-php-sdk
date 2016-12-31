@@ -461,15 +461,28 @@ class Wallet extends AccountClass
      * Using input options to 
      * filter out the transactions of the account.
      * @param string $id
-     * 查询单个交易记录信息
+     * 查询交易记录信息
      * @return multitype:
      */
-    public function getTransactionList($id = '')
+    public function getTransactionList($in_options = '')
     {
+      //build the url options
+      if ( ! empty($in_options) )
+      {
+          //parse the options into string
+          $parm_str = SnsNetwork::makeQueryString($in_options);
+          //Attach to the end of the URL
+          //
+          $cmd['url'] = str_replace("{0}",$this->address, TRANSACTIONS)
+            .'?'.$parm_str;
+      }
+      else
+        $cmd['url'] = str_replace("{0}",$this->address, TRANSACTIONS);
+
         $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}",$this->address, TRANSACTIONS). $id;
         $cmd['params'] = '';
-        
+       
+       echo "\nSubmit:".$cmd['url']."\n"; 
         if ( is_object($this->APIServer))
            return $this->APIServer->submitRequest($cmd,
              $this->address, $this->secret);

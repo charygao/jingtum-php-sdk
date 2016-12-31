@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP SDK for Jingtum network； RemoveOrderOperation
+ * PHP SDK for Jingtum network； CancelOrderOperation
  * @version 1.0.0
  * 
  * Copyright (C) 2016 by Jingtum Inc.
@@ -41,7 +41,7 @@ if (! function_exists('json_decode')) {
 
 /********** Class order **********/
 //API接口/v1/accounts/{:source_address}/orders?validated=true，POST方法
-class RemoveOrderOperation extends OperationClass
+class CancelOrderOperation extends OperationClass
 {
     //The Order number of the account 
     //since this number is unique only for one
