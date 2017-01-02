@@ -75,7 +75,7 @@ issue_tum.php      - Setup the FinGate in test environment and use it
                      Jingtum company to get the information.
 order_example.php       - Order submit and check the status.
 path_example.php        - Search for payment path then use the payment 
-                          path to make payment.
+                          path to make a payment.
 payment_example.php     - Use two test accounts for sending payments
                           in SWT and currency.
 server_example.php      - Showed how to initial the servers.

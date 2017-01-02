@@ -305,7 +305,6 @@ class Wallet extends AccountClass
         
         $key_list[] = $new_ret; 
         $this->path_key_list[] = $path_pair;
-//        echo $path_pair['key']." : ".$path_pair['value']."\n";
       }
 
       return $key_list;
@@ -356,16 +355,15 @@ class Wallet extends AccountClass
           $ret = $this->APIServer->submitRequest($cmd,
              $this->address, $this->secret);
           //Added the sha function
-          //echo "******************\n";
-          //var_dump($ret);
-          //echo "******************\n";
           if ( $ret['success'] == 'true' ){
             //Loop throu the pathList
             //and hash them
             $new_ret['success'] = 'true';
             $new_ret['payments'] =  $this->setPathKeyList($ret['payments']);
             return $new_ret;
-          } 
+          }
+          else
+            return $ret; 
         }
         else
            throw new Exception('API Server is not ready!');
