@@ -2,7 +2,7 @@
 /*
  * PHP SDK example code
  * Showed how make payments between two accounts
- * with SWT, CURRENCY, and Tum
+ * with SWT and CURRENCY
  * Require test data set
  * test_data.json 
  */
@@ -173,10 +173,12 @@ $res = $wt3->getBalance();
 echo $wt3->getAddress();
 //Should notice the change in the balances
   $des_val1 = displayBalances($res, 0);
-if ( ($des_val1 - $des_val0 ) == $pay_value ) 
-  echo "Destination account change from $des_val0 to $des_val1\nSame as $pay_value\n";
+if ( ($des_val1 - $des_val0 ) == $pay_value ){
+  echo "Destination balance changed from $des_val0 to $des_val1\n";
+  echo "Same as $pay_value\n";
+}
 else{
-  echo "Destination account change from $des_val0 to $des_val1\nDiffernt from $pay_value\n";
+  echo "Destination balance changed from $des_val0 to $des_val1\nDiffernt from $pay_value\n";
 }
 
 displayPayments($wt3->getPaymentList());
@@ -214,73 +216,31 @@ $des_val0 = displayBalances($res, 4);
 
 
 $payreq->setValidate('false');//optional, setup the syn mode, default is true
-$payreq->setResourceID($api_server->getClientResourceID());//required
 
-$res = $api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
+$res = $payreq->submit();
 
-print_r($res['success']);
-//wait for the close of ledger
-echo 'Wait for ledger closing.';
-for ($i = 0; $i<10; $i++){
+if ($res['success']){
+  //Check the balance changes if the return is true
+  //wait for the close of ledger
+  echo 'Wait for ledger closing.';
+  for ($i = 0; $i<10; $i++){
     echo '.';
-sleep(1);
+  sleep(1);
+  }
+  echo "\n";
+  //Should notice the change in the balances
+  $res = $wt3->getBalance();
+  $des_val1 = displayBalances($res, 4);
+
+  if ( ($des_val1 - $des_val0 ) == $pay_value )
+    echo "Destination account change from $des_val0 to $des_val1\nSame as $pay_value\n";
+  else{
+    echo "Destination account change from $des_val0 to $des_val1\nDiffernt from $pay_value\n";
+  }
+
+}else{
+  echo "Error of submit payment!\n";
+  var_dump($res);
 }
-echo "\n";
-//Should notice the change in the balances
-$res = $wt3->getBalance();
-$des_val1 = displayBalances($res, 4);
 
-if ( ($des_val1 - $des_val0 ) == $pay_value )
-  echo "Destination account change from $des_val0 to $des_val1\nSame as $pay_value\n";
-else{
-  echo "Destination account change from $des_val0 to $des_val1\nDiffernt from $pay_value\n";
-}
-
-/***************************************/
-//Step 5.
-//Submit payment with payment path
-//5.1 Search for the PATH
-PATH_payment:
-$amt1 = new Amount($test_cny->currency, $test_cny->issuer, $pay_value);
-
-$payreq->setDestAmount($amt1->getAmount());
-
-echo "************Check payment path  $pay_value CNY***************\n";
-$res = $wt2->getPathList($wt3->getAddress(), $amt1);
-
-if ( count($res['payments']) > 0 ){
-//choose the 1st path
-$path = $res['payments'][0]['paths'];
-
-//Set it to the payment operation
-$payreq->setPath($path);
-$payreq->setValidate('false');//optional, setup the syn mode, default is true
-$payreq->setResourceID($api_server->getClientResourceID());//required
-
-//get the balance before change
-$res = $wt3->getBalance();
-$des_val0 = displayBalances($res, 4);
-
-$res = $api_server->submitRequest($payreq->build(), $wt3->getAddress(), $wt3->getSecret());
-
-print_r($res['success']);
-
-//wait for the close of ledger
-echo 'Wait for ledger closing.';
-for ($i = 0; $i<10; $i++){
-    echo '.';
-sleep(1);
-}
-echo "\n";
-//Should notice the change in the balances
-$res = $wt3->getBalance();
-$des_val1 = displayBalances($res, 4);
-
-if ( ($des_val1 - $des_val0 ) == $pay_value )
-  echo "Destination account change from $des_val0 to $des_val1\nSame as $pay_value\n";
-else{
-  echo "Destination account change from $des_val0 to $des_val1\nDiffernt from $pay_value\n";
-}
-}else
-  echo "No payment path is available! \n";
 ?>

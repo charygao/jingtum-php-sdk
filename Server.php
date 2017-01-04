@@ -57,6 +57,8 @@ abstract class ServerClass
     //Protected attributes 
     protected $serverURL = '';
 
+    abstract function setTest();
+
     function __construct($in_url = NULL)
     {
 
@@ -504,7 +506,10 @@ class TumServer extends ServerClass
         //Generate a full url with server address and API version
         //info
           $url = $this->serverURL . $in_cmd['url'];
-        
+    
+          echo "\nSubmit.....\n$url\n";
+          var_dump( $in_cmd['params']);
+    
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
           $temp_cmd);

@@ -7,12 +7,9 @@
     "fingate1":{
       "address": "jpyyHbEWiuCA6nX37G8gGQvkDRrYJQzcXb",
       "secret": "ssHC71HCbhp6FVLLcK2oyyUVjcAY4",
-      "tum1_order_id": "JT1478834568719",
-      "tum1":"840000000C000020160024000000000020000001",
-      "tum1_order1":"prefix1479331641000001",
-      "tum2":"8100000003000020160022201800220020000002",
-      "custom_id": "",
-      "sign_key":""
+      "tum1":"8100000003000020160022201800220020000002",
+      "custom_id": "00000003",
+      "sign_key":"feef59f67303bf7d0b8dcbb1cc99e802b937ff87"
     },
     "wallet1":{
       "address":"jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",

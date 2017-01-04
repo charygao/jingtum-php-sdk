@@ -335,7 +335,8 @@ class FinGate extends AccountClass
         $cmd['method'] = 'POST';
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';        
-return $this->tum_server->submitRequest($cmd);
+
+        return $this->tum_server->submitRequest($cmd);
 
     }
 
@@ -359,8 +360,8 @@ return $this->tum_server->submitRequest($cmd);
         $cmd['method'] = 'POST'; 
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';//QUERY_ISSUE_API; 
-return $this->tum_server->submitRequest($cmd);
-        return $cmd;
+
+        return $this->tum_server->submitRequest($cmd);
     }
 
     /**
@@ -390,8 +391,7 @@ return $this->tum_server->submitRequest($cmd);
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';
  
-return $this->tum_server->submitRequest($cmd);
-        return $cmd;
+        return $this->tum_server->submitRequest($cmd);
     }
 
     /**

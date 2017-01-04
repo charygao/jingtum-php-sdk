@@ -6,13 +6,8 @@
  * Require test data set
  * test_data.json 
  */
-use JingtumSDK\FinGate;
 use JingtumSDK\Wallet;
-use JingtumSDK\Tum;
-use JingtumSDK\Amount;
 use JingtumSDK\APIServer;
-use JingtumSDK\OrderOperation;
-use JingtumSDK\RemoveOrderOperation;
 
 require_once 'lib/ConfigUtil.php';
 require_once 'Server.php';
