@@ -57,6 +57,8 @@ abstract class ServerClass
     //Protected attributes 
     protected $serverURL = '';
 
+    abstract function setTest();
+
     function __construct($in_url = NULL)
     {
 
@@ -139,7 +141,7 @@ class APIServer extends ServerClass
         }        
 
         try {
-
+          $this->uuid = 0;
           $this->version = $this->config->PRO->api_version;
           if ( $this->version != 'v1' && $this->version != 'v2')
             throw new Exception('API version error!');
@@ -194,8 +196,6 @@ class APIServer extends ServerClass
             $params['t'] = $res['t'];
         }
 
-        echo "\nSubmitting......\n$url\n";
-        //print_r($in_cmd['params']);
         //Submit the parameters to the SERVER
         $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
@@ -504,7 +504,7 @@ class TumServer extends ServerClass
         //Generate a full url with server address and API version
         //info
           $url = $this->serverURL . $in_cmd['url'];
-        
+    
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
           $temp_cmd);

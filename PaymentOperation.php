@@ -78,7 +78,6 @@ class PaymentOperation extends OperationClass
        $this->amount['currency'] = $in_tum_amount['currency'];
        $this->amount['value'] = $in_tum_amount['value'];
        $this->amount['issuer'] = $in_tum_amount['issuer'];
-       print_r($this->amount);
     }
    
     

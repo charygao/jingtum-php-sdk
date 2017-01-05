@@ -43,6 +43,7 @@ use JingtumSDK\lib\SnsNetwork;
 use JingtumSDK\lib\ECDSA;
 use JingtumSDK\AccountClass;
 use JingtumSDK\Wallet;
+use JingtumSDK\APIServer;
 use WebSocket\Client;
 
 require_once 'vendor/autoload.php';
@@ -51,6 +52,7 @@ require_once './lib/SnsNetwork.php';
 require_once './lib/ConfigUtil.php';
 require_once './lib/Constants.php';
 require_once 'AccountClass.php';
+require_once 'Server.php';
 require_once 'Wallet.php';
 
 /**
@@ -97,6 +99,9 @@ class FinGate extends AccountClass
 
       //Set default value
       $this->prefix = 'prefix'; 
+
+      //set default API server and Tum server
+
     }
 
 
@@ -335,7 +340,8 @@ class FinGate extends AccountClass
         $cmd['method'] = 'POST';
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';        
-return $this->tum_server->submitRequest($cmd);
+
+        return $this->tum_server->submitRequest($cmd);
 
     }
 
@@ -359,8 +365,8 @@ return $this->tum_server->submitRequest($cmd);
         $cmd['method'] = 'POST'; 
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';//QUERY_ISSUE_API; 
-return $this->tum_server->submitRequest($cmd);
-        return $cmd;
+
+        return $this->tum_server->submitRequest($cmd);
     }
 
     /**
@@ -390,8 +396,7 @@ return $this->tum_server->submitRequest($cmd);
         $cmd['params'] = $params;
         $cmd['url'] = '/v1/business/node';
  
-return $this->tum_server->submitRequest($cmd);
-        return $cmd;
+        return $this->tum_server->submitRequest($cmd);
     }
 
     /**

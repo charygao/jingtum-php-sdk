@@ -52,12 +52,15 @@ else
 //Read in the test configuration and data
 $test_data = readTestData("examples/test_data.json");
 
+
+
 //Setup the API server using DEV server configurations.
 //Check if the initialization is successful
 //Then start the wallet operations.
 $api_server = new APIServer();
+
 if (is_object($api_server)){
-echo "\n==Set API Server Successful!==\n";
+//echo "\n==Set API Server Successful!==\n";
 $api_server->setTest(true);
 
 
@@ -65,15 +68,16 @@ $api_server->setTest(true);
 //Set the FinGate using info from the configuration file.
 $fg1 = $test_data->DEV->wallet1;
 
-print_r("=============Get FinGate Address==============\n");
+print_r("=============Set FinGate Address==============\n");
 $fin_gate = new FinGate($fg1->address, $fg1->secret);
-printf("%s\n",$fin_gate->getAddress());
-printf("%s\n",$fin_gate->getSecret());
 
-$fin_gate->setAPIServer($api_server);
+//Set the test environment
+$fin_gate->setTest(true);
+
 //Set up the minimum active amount to active the Wallet
 //if needed. Otherwise FinGate uses the default amount.
 $fin_gate->setActivateAmount(25);
+
 //Create the new wallet using the FinGate function
 $wallet1 = $fin_gate->createWallet();
 //print_r($wallet1);
@@ -83,12 +87,13 @@ echo "Secret:".$wallet1->getSecret()."\n";
 
 
 //Setup the API server used in the FinGate
-$res = $api_server->submitRequest($fin_gate->activeWallet($wallet1->getAddress()));
+$res = $fin_gate->activeWallet($wallet1->getAddress());
+
 //Wait for ledger close
 sleep(10);
-//var_dump($res);
+
 //display the results
-echo "******Check Balance*************\n";
+echo "Check Balance\n";
 $wallet1->setAPIServer($api_server);
 $res = $wallet1->getBalance();
 $src_val0 = displayBalances($res, 0);
@@ -96,8 +101,9 @@ $src_val0 = displayBalances($res, 0);
 
 payment_test:
 //payback the FinGate for testing
+//This need to create a wallet class
 $wt3 = new Wallet($fg1->address, $fg1->secret);
-$wt3->setAPIServer($api_server);
+$wt3->setTest(true);
 $res = $wt3->getBalance();
 //Should notice the change in the balances
 $des_val0 = displayBalances($res, 0);
@@ -120,7 +126,7 @@ $res = $payreq->submit();
 var_dump($res);
 sleep(10);
 
-echo "************Make payment with $pay_value SWT***************\n";
+echo "Make payment with $pay_value SWT\n";
 $res = $wt3->getBalance();
 echo $wt3->getAddress();
 //Should notice the change in the balances
