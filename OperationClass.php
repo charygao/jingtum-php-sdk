@@ -83,8 +83,8 @@ abstract class OperationClass
      * Set the operation mode to 
      * true - Synchronous mode
      * false - Asynchronous Mode
-     * Note the input need to be a string instead
-     * of boolean. 
+     * Note the input can be a string
+     * or a boolean. 
      */
     public function setValidate($in_sync)
     {
@@ -114,6 +114,12 @@ abstract class OperationClass
       }  
     }//end function
 
+    /*
+     * Set the operation mode to syn mode i
+     * true - Synchronous mode
+     * false - Asynchronous Mode
+     * Note the input need to be
+    */
     public function setSyn($in_var)
     {
       $this->setValidate($in_var);
