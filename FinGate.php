@@ -43,6 +43,7 @@ use JingtumSDK\lib\SnsNetwork;
 use JingtumSDK\lib\ECDSA;
 use JingtumSDK\AccountClass;
 use JingtumSDK\Wallet;
+use JingtumSDK\APIServer;
 use WebSocket\Client;
 
 require_once 'vendor/autoload.php';
@@ -51,6 +52,7 @@ require_once './lib/SnsNetwork.php';
 require_once './lib/ConfigUtil.php';
 require_once './lib/Constants.php';
 require_once 'AccountClass.php';
+require_once 'Server.php';
 require_once 'Wallet.php';
 
 /**
@@ -97,6 +99,9 @@ class FinGate extends AccountClass
 
       //Set default value
       $this->prefix = 'prefix'; 
+
+      //set default API server and Tum server
+
     }
 
 

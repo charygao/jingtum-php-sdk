@@ -30,6 +30,8 @@ if ( $res['success'] == true ){
       echo "Trans $type at $time : $code for $fee\n";
     }
   }
+  //return the 1st transaction record hash
+  return $res['transactions'][0]['hash'];
 }
 else{
   echo "Error in get OrderList\n";
@@ -50,20 +52,15 @@ $test_wallet2 = $test_data->DEV->wallet2;
 $test_wallet3 = $test_data->DEV->wallet3;
 $test_cny = $test_data->DEV->CNYAmount1;
 
-//reset the counters
-$pass = 0;
-$fail = 0;
-
-//Setup the API server, use test environment
-$api_server = new APIServer();
-$api_server->setTest(true);
-
+//
+$last_hash = NULL;
 
 //Test account to check the transactions
 src_account:
 $wt0 = new Wallet($test_wallet2->address, $test_wallet2->secret);
-if ( $wt0->setAPIServer($api_server)){
-
+if ( $wt0 ){
+$wt0->setTest(true);
+echo "=======Get Transactions With Options================\n";
 
 $res = $wt0->getTransactionList();
 displayTransactionList($res);
@@ -86,13 +83,20 @@ $options['results_per_page'] = 20;
 $options['page'] = 1;
 $res = $wt0->getTransactionList($options);
 
-displayTransactionList($res);
+//get a hash ID from the list
+$last_hash = displayTransactionList($res);
 
 }
 else
   echo 'Error in initing Wallet Server';
 
-echo "============Check transaction by HASH==============\n";
-return;
+echo "\n============Check transaction by HASH==============\n";
+if ( $last_hash ){
+  $res = $wt0->getTransaction($last_hash);
+  var_dump($res);
+}
+else
+  echo "Empty hash ID\n";
+
 
 ?>

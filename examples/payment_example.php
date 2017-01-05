@@ -65,9 +65,9 @@ else
 // Main test program
 //Read in the test configuration and data
 /***************************************/
-echo "***************************************\n";
+echo "======================================\n";
 echo "*\n* Jingtum Test program\n* Payment test 1.0\n*\n";
-echo "***************************************\n";
+echo "======================================\n";
 
 $test_data = readTestData("examples/test_data.json");
 
@@ -85,9 +85,8 @@ $test_cny = $test_data->DEV->CNYAmount1;
 //Set up the source wallet object
 
 src_account:
-echo "***************************************\n";
+echo "======================================\n";
 echo "Setup wallet1\n";
-echo "***************************************\n";
 $wt2 = new Wallet($test_wallet2->address, $test_wallet2->secret);
 
 if ( is_object($wt2))
@@ -110,9 +109,8 @@ displayPayments($paylist);
 //Set up the destination wallet object
 
 dest_account:
-echo "***************************************\n";
+echo "======================================\n";
 echo "Setup wallet2\n";
-echo "***************************************\n";
 $wt3 = new Wallet($test_wallet3->address, $test_wallet3->secret);
 //display the balances
 if ( $wt3)
@@ -130,9 +128,8 @@ if ( $wt3)
 //3.1 Create the payment operation 
 //Make payment from wallet2 to wallet3 using SWT
 //Building a payment operation
-echo "***************************************\n";
-echo "SWT payment test\n";
-echo "***************************************\n";
+echo "======================================\n";
+echo "SWT payment test\n\n";
 echo "Prepare the payment...\n";
 $payreq = new PaymentOperation($wt2);
 
@@ -192,9 +189,8 @@ $res = $rev_payreq->submit();
 //Test the CNY payment
 //4.1 Create the payment amount and add to the operation
 CNY_payment:
-echo "***************************************\n";
-echo "CNY payment test\n";
-echo "***************************************\n";
+echo "======================================\n";
+echo "CNY payment test\n\n";
 echo "Prepare the payment...\n";
 
 //create the new tum amount object

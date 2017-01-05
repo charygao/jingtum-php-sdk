@@ -5,19 +5,19 @@
     "tum_pair2":"USD+jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",
     "tum_pair3":"CNY+jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",
     "fingate1":{
-      "address": "jpyyHbEWiuCA6nX37G8gGQvkDRrYJQzcXb",
-      "secret": "ssHC71HCbhp6FVLLcK2oyyUVjcAY4",
-      "tum1":"8100000003000020160022201800220020000002",
-      "custom_id": "00000003",
-      "sign_key":"feef59f67303bf7d0b8dcbb1cc99e802b937ff87"
+      "address": "jLRdkbLyEwMLKAeGHMh8zfxWQDagPmZEaw",
+      "secret": "ssSHuRBvRt4TeB8eVE8CBRoB8cVAe",
+      "tum1":"get it from tfingate.jingtum.com",
+      "custom_id": "get it from tfingate.jingtum.com",
+      "sign_key":"get it from tfingate.jingtum.com"
     },
-    "wallet3":{
+    "wallet2":{
       "address":"jnxxSNnx6yshDKDZUSaxjJi272aREJ3W1R",
       "secret":"sp5JPhzoZCvbitffHiJ1VfFo2M9gw"
     },
-    "wallet2":{
-      "address":"jLRdkbLyEwMLKAeGHMh8zfxWQDagPmZEaw",
-      "secret":"ssSHuRBvRt4TeB8eVE8CBRoB8cVAe"
+    "wallet3":{
+      "address":"jQfhBq2ssuCm7Yi7inGtifi4xafHEW8CYf",
+      "secret":"snarAqwsCAb3bANJi4LCCMtpt2eN2"
     },
     "CNYAmount1":{
       "currency":"CNY",

@@ -68,12 +68,12 @@ $api_server->setTest(true);
 //Set the FinGate using info from the configuration file.
 $fg1 = $test_data->DEV->wallet1;
 
-print_r("=============Get FinGate Address==============\n");
+print_r("=============Set FinGate Address==============\n");
 $fin_gate = new FinGate($fg1->address, $fg1->secret);
-printf("%s\n",$fin_gate->getAddress());
-printf("%s\n",$fin_gate->getSecret());
 
-$fin_gate->setAPIServer($api_server);
+//Set the test environment
+$fin_gate->setTest(true);
+
 //Set up the minimum active amount to active the Wallet
 //if needed. Otherwise FinGate uses the default amount.
 $fin_gate->setActivateAmount(25);
@@ -93,7 +93,7 @@ $res = $fin_gate->activeWallet($wallet1->getAddress());
 sleep(10);
 
 //display the results
-echo "******Check Balance*************\n";
+echo "Check Balance\n";
 $wallet1->setAPIServer($api_server);
 $res = $wallet1->getBalance();
 $src_val0 = displayBalances($res, 0);
@@ -103,7 +103,7 @@ payment_test:
 //payback the FinGate for testing
 //This need to create a wallet class
 $wt3 = new Wallet($fg1->address, $fg1->secret);
-$wt3->setAPIServer($api_server);
+$wt3->setTest(true);
 $res = $wt3->getBalance();
 //Should notice the change in the balances
 $des_val0 = displayBalances($res, 0);
@@ -126,7 +126,7 @@ $res = $payreq->submit();
 var_dump($res);
 sleep(10);
 
-echo "************Make payment with $pay_value SWT***************\n";
+echo "Make payment with $pay_value SWT\n";
 $res = $wt3->getBalance();
 echo $wt3->getAddress();
 //Should notice the change in the balances

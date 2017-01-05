@@ -100,6 +100,14 @@ else
   echo "Error in get OrderList\n";
 }
 
+/***************************************/
+// Main test program
+//Read in the test configuration and data
+/***************************************/
+echo "======================================\n";
+echo "*\n* Jingtum Test program\n* Order test 1.0\n*\n";
+echo "======================================\n";
+
 //Read in the test configuration and data
 $test_data = readTestData("examples/test_data.json");
 
@@ -117,15 +125,13 @@ $test_cny = $test_data->DEV->CNYAmount1;
 $pass = 0;
 $fail = 0;
 
-//Setup the API server, use test environment
-$api_server = new APIServer();
-$api_server->setTest(true);
-
 
 //Source account to submit the order
 src_account:
 $wt2 = new Wallet($test_wallet2->address, $test_wallet2->secret);
-if ( $wt2->setAPIServer($api_server)){
+
+if ( $wt2 ){
+$wt2->setTest(true);//
 $ret = $wt2->getOrderList();
 echo "Address".$wt2->getAddress()."\n";
 displayOrderList($ret);
@@ -135,7 +141,8 @@ else
   echo 'Error in initing Wallet Server';
 
 $wt3 = new Wallet($test_wallet3->address, $test_wallet3->secret);
-if ( $wt3->setAPIServer($api_server)){
+if ( $wt3 ){
+$wt3->setTest(true);
 $ret = $wt3->getOrderList();
 echo "Address".$wt3->getAddress()."\n";
 displayOrderList($ret);
@@ -194,12 +201,10 @@ $ret = $wt3->getTransactionList();
 //displayTransactionList($ret);
 checkOrderStatus($ret, $order_id);
 
-
 }else{
   echo "Failed to submit the order!\n";
   print_r(json_encode($ret));
 }
 
-return;
 
 ?>

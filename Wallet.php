@@ -102,13 +102,13 @@ class Wallet extends AccountClass
     private $domain = '';
 
     //API server address
-    private $APIServer = NULL;//Server
+    private $api_server = NULL;//Server
     private $path_key_list = NULL;
 
     function __construct($address, $secret)
     {
         parent::__construct($address, $secret);
-        $this->APIServer = new APIServer();
+        $this->api_server = new APIServer();
     }
 
     function __destruct() {
@@ -122,7 +122,7 @@ class Wallet extends AccountClass
     {
         //Init the Server class object
         if ( is_object($in_server) ){
-          $this->APIServer = $in_server;
+          $this->api_server = $in_server;
           echo "Set API server in $this->address \n";
           return true;
         }
@@ -133,8 +133,8 @@ class Wallet extends AccountClass
     //Switch to test environment
     public function setTest($in_flag)
     {
-      if ( is_object($this->APIServer) ){
-          $this->APIServer->setTest($in_flag);
+      if ( is_object($this->api_server) ){
+          $this->api_server->setTest($in_flag);
       }
     }
     /*
@@ -143,7 +143,7 @@ class Wallet extends AccountClass
     public function getAPIServer()
     {
         //Init the Server class object
-        return $this->APIServer;
+        return $this->api_server;
     }
     
     /**
@@ -158,8 +158,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, ORDERS).$order;
         $cmd['params'] = '';
 
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -179,8 +179,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, ORDERS). '/' .$base. '/' .$counter;
         $cmd['params'] = '';
         
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -197,8 +197,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, ORDERS);
         $cmd['params'] = '';
         
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -215,8 +215,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, PAYMENTS). $id;
         $cmd['params'] = '';
         
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -234,8 +234,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, TRANSACTIONS).$id;
         $cmd['params'] = '';
         
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -271,8 +271,8 @@ class Wallet extends AccountClass
 
       $cmd['params'] = '';
 
-      if ( is_object($this->APIServer))
-        return $this->APIServer->submitRequest($cmd, 
+      if ( is_object($this->api_server))
+        return $this->api_server->submitRequest($cmd, 
           $this->address, $this->secret); 
       else
         throw new Exception('API Server is not ready!');
@@ -359,8 +359,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, PAYMENT_PATHS). $dest_address. '/' .$payment;
         $cmd['params'] = '';
         
-        if ( is_object($this->APIServer)){
-          $ret = $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server)){
+          $ret = $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
           //Added the sha function
           if ( $ret['success'] == 'true' ){
@@ -390,8 +390,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, PAYMENTS);
         $cmd['params'] = '';
         
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -415,8 +415,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, TRUST_LINES);
         $cmd['params'] = '';
         
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -441,8 +441,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}",$this->address, RELATIONS);
         $cmd['params'] = $params;
         
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -464,8 +464,8 @@ class Wallet extends AccountClass
         $cmd['url'] = str_replace("{0}", $this->address, CORELATIONS);
         $cmd['params'] = $params;
 
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');
@@ -496,8 +496,8 @@ class Wallet extends AccountClass
         $cmd['method'] = 'GET';
         $cmd['params'] = '';
        
-        if ( is_object($this->APIServer))
-           return $this->APIServer->submitRequest($cmd,
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);
         else
            throw new Exception('API Server is not ready!');

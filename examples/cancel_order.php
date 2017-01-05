@@ -51,6 +51,14 @@ if ( $test_data == false ){
    return;
 }
 
+/***************************************/
+// Main test program
+//Read in the test configuration and data
+/***************************************/
+echo "======================================\n";
+echo "*\n* Jingtum test program\n* Cancel order test 1.0\n*\n";
+echo "======================================\n";
+
 //Used the input test wallet address/secret to check the balance
 $test_wallet2 = $test_data->DEV->wallet2;
 $test_wallet3 = $test_data->DEV->wallet3;
@@ -60,22 +68,22 @@ $test_cny = $test_data->DEV->CNYAmount1;
 $pass = 0;
 $fail = 0;
 
-//Setup the API server, use test environment
-$api_server = new APIServer();
-$api_server->setTest(true);
-
 
 //Source account to submit the order
 src_account:
 $wt0 = new Wallet($test_wallet2->address, $test_wallet2->secret);
-if ( $wt0->setAPIServer($api_server)){
+
+if ( $wt0 ){
+$wt0->setTest(true);
 $res = $wt0->getOrderList();
 displayOrderList($res);
 
 }
 else
+{
   echo 'Error in initing Wallet Server';
-
+  return;
+}
 //Submit an order and then cancel it
 echo "============Build an order==============\n";
 //1 SWT with 10 CNY
@@ -98,10 +106,14 @@ $ret = $req3->submit();
 
 if ( $ret['success'] == true ){
   $pass ++;
-  print_r(json_encode($ret));
-  //$order_id = $ret['hash'];
+  //  print_r(json_encode($ret));
+  echo "Order submitted successfully\n";
+  echo "HASH ID:".$ret['hash']."\n";
+
+  $res = $wt0->getOrderList();
+  displayOrderList($res);
+
   $order_id = $ret['sequence'];
-  goto cancel_order;
 
 echo "=======Cancel the order===================\n";
 cancel_order:
