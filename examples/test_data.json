@@ -11,30 +11,13 @@
       "custom_id": "00000003",
       "sign_key":"feef59f67303bf7d0b8dcbb1cc99e802b937ff87"
     },
-    "wallet1":{
-      "address":"jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",
-      "secret":"ssPitXium2f2ZxifEaAB2YTpJUpJV",
-      "balance1":{
-        "value": 129757.754575,
-        "issuer":" ",
-        "code":"SWT"
-       },
-      "balance2":{
-         "value": 5.700000549841681,
-         "issuer":"jBciDE8Q3uJjf111VeiUNM775AMKHEbBLS",
-         "code":"CNY"}
+    "wallet3":{
+      "address":"jnxxSNnx6yshDKDZUSaxjJi272aREJ3W1R",
+      "secret":"sp5JPhzoZCvbitffHiJ1VfFo2M9gw"
     },
     "wallet2":{
-      "address":"jpyyHbEWiuCA6nX37G8gGQvkDRrYJQzcXb",
-      "secret":"ssHC71HCbhp6FVLLcK2oyyUVjcAY4"
-    },
-    "wallet3":{
-      "address":"jJwtrfvKpvJf2w42rmsEzK5fZRqP9Y2xhQ",
-      "secret":"shNKNNtxgBgZDa3YADcAKBFy5W5kK"
-    },
-    "wallet4":{
-      "address":"j44rkkVKxnqhm9cP7kQqpj27YGYTFAEFRh",
-      "secret":"shNKNNtxgBgZDa3YADcAKBFy5W5kK"
+      "address":"jLRdkbLyEwMLKAeGHMh8zfxWQDagPmZEaw",
+      "secret":"ssSHuRBvRt4TeB8eVE8CBRoB8cVAe"
     },
     "CNYAmount1":{
       "currency":"CNY",

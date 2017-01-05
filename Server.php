@@ -196,8 +196,6 @@ class APIServer extends ServerClass
             $params['t'] = $res['t'];
         }
 
-        //echo "\nSubmitting......\n$url\n";
-        //print_r($in_cmd['params']);
         //Submit the parameters to the SERVER
         $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
@@ -506,9 +504,6 @@ class TumServer extends ServerClass
         //Generate a full url with server address and API version
         //info
           $url = $this->serverURL . $in_cmd['url'];
-    
-          echo "\nSubmit.....\n$url\n";
-          var_dump( $in_cmd['params']);
     
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 

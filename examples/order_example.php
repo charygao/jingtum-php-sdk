@@ -124,20 +124,20 @@ $api_server->setTest(true);
 
 //Source account to submit the order
 src_account:
-$wt0 = new Wallet($test_wallet2->address, $test_wallet2->secret);
-if ( $wt0->setAPIServer($api_server)){
-$ret = $wt0->getOrderList();
-echo "Address".$wt0->getAddress()."\n";
+$wt2 = new Wallet($test_wallet2->address, $test_wallet2->secret);
+if ( $wt2->setAPIServer($api_server)){
+$ret = $wt2->getOrderList();
+echo "Address".$wt2->getAddress()."\n";
 displayOrderList($ret);
 
 }
 else
   echo 'Error in initing Wallet Server';
 
-$wt1 = new Wallet($test_wallet3->address, $test_wallet3->secret);
-if ( $wt1->setAPIServer($api_server)){
-$ret = $wt1->getOrderList();
-echo "Address".$wt1->getAddress()."\n";
+$wt3 = new Wallet($test_wallet3->address, $test_wallet3->secret);
+if ( $wt3->setAPIServer($api_server)){
+$ret = $wt3->getOrderList();
+echo "Address".$wt3->getAddress()."\n";
 displayOrderList($ret);
 
 }
@@ -158,7 +158,7 @@ $amt2['value'] = $get_value;
 
 echo "=======Submit order 1===================\n";
 order1:
-$req3 = new OrderOperation($wt0);
+$req3 = new OrderOperation($wt2);
 $req3->setOrderType('buy');//required
 $req3->setTakePays($amt1);               //required
 $req3->setTakeGets($amt2);               //required
@@ -166,13 +166,13 @@ $req3->setTakeGets($amt2);               //required
 $ret = $req3->submit();
 
 if ( $ret['success'] == true ){
-  $ret = $wt0->getOrderList();
-  echo "Address".$wt0->getAddress()."\n";
+  $ret = $wt2->getOrderList();
+  echo "Address".$wt2->getAddress()."\n";
   displayOrderList($ret);
 }
 echo "=======Submit order 2===================\n";
 order2:
-$req3 = new OrderOperation($wt1);
+$req3 = new OrderOperation($wt3);
 $req3->setOrderType('buy');//required
 $req3->setTakePays($amt2);               //required
 $req3->setTakeGets($amt1);               //required
@@ -184,13 +184,13 @@ if ( $ret['success'] == true ){
    $order_id = $ret['sequence'];
 //to check a submitted order, need to wait until the ledger closed
 sleep(10);
-  $ret = $wt1->getOrderList();
-  echo "Address".$wt1->getAddress()."\n";
+  $ret = $wt3->getOrderList();
+  echo "Address".$wt3->getAddress()."\n";
   displayOrderList($ret);
 //Check the order list 
 //and transactions to make sure the order is 
 //finished.
-$ret = $wt1->getTransactionList();
+$ret = $wt3->getTransactionList();
 //displayTransactionList($ret);
 checkOrderStatus($ret, $order_id);
 

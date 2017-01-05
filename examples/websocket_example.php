@@ -21,6 +21,10 @@ require_once 'Server.php';
 // Main test program
 //Read in the test configuration and data
 /***************************************/
+echo "***************************************\n*\n";
+echo "Jingtum Test program\nWebsocket test 1.0\n*\n";
+echo "***************************************\n\n";
+
 $test_data = readTestData("examples/test_data.json");
 
 if ( $test_data == false ){
@@ -43,13 +47,15 @@ $wallet = new Wallet($test_wallet2->address, $test_wallet2->secret);
 //then subscribe a wallet
 //wait for the signals to come and display
 //them
-printf("\n=============connect to web socket server==============\n");
+printf("\nConnect to web socket server\n");
 $ret = $web_socket_server->connect();
+echo "\n";
 print_r($ret);
 
 $ret = $web_socket_server->subscribe($wallet->getAddress(), $wallet->getSecret());
+echo "\n";
 print_r($ret);
-printf("\nListening...\n");
+echo "\nListening...\n";
 
 //Listening to the web socket for the incoming messages
 //on the wallet
@@ -58,12 +64,13 @@ for ($i = 1; $i <= 3; $i ++){
   sleep($wait_sec);
   //program stops here if no input message received.
   $ret = $web_socket_server->setTxHandler();
-  printf("After %d Seconds: %s\n",$i*$wait_sec, $ret);
+  printf("Message %d: %s\n",$i, $ret);
 }
 
 $ret = $web_socket_server->unsubscribe($wallet->getAddress());
 
-print_r("=============close connection==============\n");
+print_r("close connection\n");
 $ret = $web_socket_server->disconnect();
 
-return;
+
+?>

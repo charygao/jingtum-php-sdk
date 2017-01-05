@@ -58,8 +58,9 @@ $test_data = readTestData("examples/test_data.json");
 //Check if the initialization is successful
 //Then start the wallet operations.
 $api_server = new APIServer();
+
 if (is_object($api_server)){
-echo "\n==Set API Server Successful!==\n";
+//echo "\n==Set API Server Successful!==\n";
 $api_server->setTest(true);
 
 
@@ -87,11 +88,10 @@ echo "Secret:".$wallet1->getSecret()."\n";
 
 //Setup the API server used in the FinGate
 $res = $fin_gate->activeWallet($wallet1->getAddress());
-var_dump($res);
 
 //Wait for ledger close
 sleep(10);
-//var_dump($res);
+
 //display the results
 echo "******Check Balance*************\n";
 $wallet1->setAPIServer($api_server);

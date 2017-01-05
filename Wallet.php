@@ -108,10 +108,11 @@ class Wallet extends AccountClass
     function __construct($address, $secret)
     {
         parent::__construct($address, $secret);
+        $this->APIServer = new APIServer();
     }
 
     function __destruct() {
-       print "Destructing " . $this->address . " account!\n";
+       //echo "Destructing " . $this->address . " account!\n";
     }
 
     /*
@@ -129,6 +130,13 @@ class Wallet extends AccountClass
           return false;
     }
 
+    //Switch to test environment
+    public function setTest($in_flag)
+    {
+      if ( is_object($this->APIServer) ){
+          $this->APIServer->setTest($in_flag);
+      }
+    }
     /*
      * get the API server
     */
@@ -488,7 +496,6 @@ class Wallet extends AccountClass
         $cmd['method'] = 'GET';
         $cmd['params'] = '';
        
-       echo "\nSubmit:".$cmd['url']."\n"; 
         if ( is_object($this->APIServer))
            return $this->APIServer->submitRequest($cmd,
              $this->address, $this->secret);
