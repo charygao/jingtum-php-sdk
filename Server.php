@@ -114,7 +114,7 @@ class APIServer extends ServerClass
     private $prefix = 'prefix';
 
     //internal counter to generate transaction ID
-    private static $uuid = 0;
+    private $uuid = 0;
     
     //Declare the instance 
     private static $instance = NULL;
