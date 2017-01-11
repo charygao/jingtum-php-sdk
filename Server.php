@@ -421,12 +421,15 @@ class WebSocketServer extends ServerClass
 class TumServer extends ServerClass
 { 
     //Tum server
-    //Tum version
+
+    //Input config info
+    private static $config = NULL;
     
     //Declare the instance 
     private static $instance = NULL;
 
     //reserved for DATA server URL
+    //or read from default config file
     function __construct($in_url = NULL)
     {
       //$this->serverURL = $inURL;
@@ -444,7 +447,7 @@ class TumServer extends ServerClass
           parent::__construct($this->config->PRO->fingate);
 
           } catch (Exception $e) {
-            echo "Error in setup WebSocket server from the config\n";
+            echo "Error in setup Tum server from the config\n";
           }
 
         }else

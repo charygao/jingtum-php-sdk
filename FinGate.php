@@ -83,6 +83,9 @@ class FinGate extends AccountClass
 
     private static $instance = NULL;
 
+    //Tum server (for issuing Tum) and API server (active wallets)
+    private $tum_server = NULL;
+
     private $api_server = NULL;
 
     //Variables used to issue custom Tum
@@ -101,7 +104,8 @@ class FinGate extends AccountClass
       $this->prefix = 'prefix'; 
 
       //set default API server and Tum server
-
+      $this->api_server = new APIServer();
+      $this->tum_server = new TumServer();
     }
 
 
@@ -116,6 +120,7 @@ class FinGate extends AccountClass
           return true;
         }
         else{
+          throw new Exception('Input should be a Server object');
           return false;
         }
 
@@ -132,6 +137,7 @@ class FinGate extends AccountClass
           return true;
         }
         else{
+          throw new Exception('Input should be a Server object');
           return false;
         }
 
@@ -246,6 +252,8 @@ class FinGate extends AccountClass
     public function setTest($test)
     {
         $this->test_mode = $test;
+        $this->api_server->setTest($test);
+        $this->tum_server->setTest($test);
     }
     
     /**

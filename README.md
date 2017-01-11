@@ -5,6 +5,8 @@
 
 developer.jingtum.com
 
+## 运行环境
+
 井通SDK PHP的运行需要PHP支持 JSON（PHP 5.2.x 以上版本）和安装 CURL 扩展程序库。
 以下命令在Ubuntu 14下自动安装curl扩展程序库。
 
@@ -58,38 +60,56 @@ composer
 
 textalk
 
------------------------------------------------------------
-源程序文件说明
+## 文件说明
+
+### 源程序文件说明
+
 AccountClass.php   - Base class for Wallet and FinGate. 
+
 FinGate.php        - FinGate class and functions. 
+
 OperationClass.php       - Base class for Payment, Order and other Operations. 
+
 OrderOperation.php       - Submit order operation.
+
 PaymentOperation.php     - Make payment operation.
+
 CancelOrderOperation.php - Cancel the order operation. 
 
 Server.php         - Basic server, API server, Tum server
+
                      and Websocket server.
+
 Tum.php            - Tum, Amount, Balance classes.
+
 Wallet.php         - Wallet class and functions.
 
------------------------------------------------------------
-配置文件 
+###配置文件 
+
 composer.json      - composer config file for package installation. 
+
 composer.lock      - composer lock file for package installation.
+
 config.json        - Jingtum server configurations.
 
------------------------------------------------------------
-所需库文件
+### 所需库文件
+
 lib/
+
 ConfigUtil.php     - Configurations read in and write out.
+
 Constants.php      - Constants used in the SDK.
+
 DataCheck.php      - Data functions to check if the data type is right.
+
 ECDSA.php          - Encrypted functions.
+
 SignUtil.php       - Build Jingtum signature.
+
 SnsNetwork.php     - Functions handling HTTP requests.
 
------------------------------------------------------------
-示例文件说明
+### 示例文件说明
+
 examples/
 test_data.json          - Test data used in the test program, only 
                           used in the development server.
@@ -105,9 +125,10 @@ wallet_example.php      - Create wallet, active it and use it to make
                           a payment.
 websocket_example.php   - Use Websocket to receive the API processing info.
 
------------------------------------------------------------
+## 程序示例
+
 To run the examples, at the current directory,
 install the necessary packages, and run:
-```
+```php
 php example/payment_example.php
 ```
