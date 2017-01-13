@@ -251,9 +251,16 @@ class FinGate extends AccountClass
      */
     public function setTest($test)
     {
-        $this->test_mode = $test;
-        $this->api_server->setTest($test);
-        $this->tum_server->setTest($test);
+        if ( is_bool($test)){
+          $this->test_mode = $test;
+          $this->api_server->setTest($test);
+          $this->tum_server->setTest($test);
+          return true;
+        }else
+        {
+          echo "Input need to be a boolean";
+          return false;
+        }
     }
     
     /**

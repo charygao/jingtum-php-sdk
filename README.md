@@ -76,9 +76,7 @@ PaymentOperation.php     - Make payment operation.
 
 CancelOrderOperation.php - Cancel the order operation. 
 
-Server.php         - Basic server, API server, Tum server
-
-                     and Websocket server.
+Server.php         - Basic server, API server, Tum server and Websocket server.
 
 Tum.php            - Tum, Amount, Balance classes.
 
@@ -111,24 +109,29 @@ SnsNetwork.php     - Functions handling HTTP requests.
 ### 示例文件说明
 
 examples/
-test_data.json          - Test data used in the test program, only 
-                          used in the development server.
+
+test_data.json          - Test data used in the test program, only used in the development server.
+
 cancel_order.php        - Order submit and cancel.
+
 order_example.php       - Order submit and check the status.
-path_example.php        - Search for payment path then use the payment
-                          path to make a payment.
-payment_example.php     - Use two test accounts for sending payments
-                          in SWT and currency.
+
+path_example.php        - Search for payment path then use the payment path to make a payment.
+
+payment_example.php     - Use two test accounts for sending payments in SWT and currency.
+
 server_example.php      - Showed how to initial the servers.
+
 transaction_example.php - Show how to get transaction information.
-wallet_example.php      - Create wallet, active it and use it to make 
-                          a payment.
+
+wallet_example.php      - Create wallet, active it and use it to make a payment.
+
 websocket_example.php   - Use Websocket to receive the API processing info.
 
 ## 程序示例
 
-To run the examples, at the current directory,
-install the necessary packages, and run:
+To run the examples, install the necessary packages, copy the example files and run:
+
 ```php
-php example/payment_example.php
+php payment_example.php
 ```

@@ -474,11 +474,17 @@ class TumServer extends ServerClass
           {
             $this->serverURL = $this->config->PRO->fingate;
           }
+          echo  $this->serverURL."\n";
+          return true;
         }else
+        {
           echo "No configuration is set!";
           //reload the config file
+          return false;
+        }
       }else{
         echo "Input need to be a boolean";
+        return false;
       }
     }
     
@@ -504,10 +510,14 @@ class TumServer extends ServerClass
         $temp_cmd = strtoupper(trim($in_cmd['method']));
         if ( $temp_cmd == 'POST' || $temp_cmd == 'GET' 
             || $temp_cmd == 'DELETE' ){
+
         //Generate a full url with server address and API version
         //info
           $url = $this->serverURL . $in_cmd['url'];
-    
+
+          echo "Submit to: ".$url."\n";
+          var_dump($in_cmd['params']);
+
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
           $temp_cmd);
