@@ -9,56 +9,50 @@ developer.jingtum.com
 
 井通SDK PHP的运行需要PHP支持 JSON（PHP 5.2.x 以上版本）和安装 CURL 扩展程序库。
 以下命令在Ubuntu 14下自动安装curl扩展程序库。
-
+```
 $sudo apt-get install php5-curl
+```
 
 ECDSA文件需要(GNU Multiple Precision (GMP) Arithmetic Library）.
 否则会出现以下错误
 'GMP extension seems not to be installed' in /PHP-SDK/lib/ECDSA.php:11
 
 在Ubuntu下，使用
-
+```
 $sudo apt-get install php5-gmp
+```
 
 在MAC OS下，使用brew
-
+```
 $brew install homebrew/php-gmp
 
 $brew install homebrew/php/php55-gmp
+```
 
 还需要安装与服务器请求的接口WebSocket和其相应的软件库。
 
-在当前目录下，composer.json含有需要的程序信息，如：
-```
-     "require": {
-       "textalk/websocket": "1.0.*"
-     }
-```
-composer.lock包含这些程序信息的具体版本。
-可以通过Composer工具来安装，具体可以参考 
+PHP SDK提供了回调函数（callback）。
+
+##安装PHP SDK
+
+首先保证系统安装了composer。如果没有，则需要安装Composer工具，具体可以参考 
 [Composer](https://getcomposer.org/)
 的说明。
+curl -sS https://getcomposer.org/installer | php
 
-使用Composer,需要先安装Composer，在linux下：
+在当前目录下的composer.json中加入PHP SDK的程序信息，如：
 ```
-$php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-$php -r "if (hash_file('SHA384', 'composer-setup.php') === '61069fe8c6436a4468d0371454cf38a812e451a14ab1691543f25a9627b97ff96d8753d92a00654c21e2212a5ae1ff36') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-$php composer-setup.php
-$php -r "unlink('composer-setup.php');"
+     "require": {
+       "jingtum/jingtum-php-sdk": "1.0.2"
+     }
 ```
-完成这些步骤后，当前目录下会生成composer.phar文件。运行
+
+运行以下命令安装：
 ```
 php composer.phar install
 ```
-检查是否在vendor下有以下文件
 
-autoload.php  
 
-和目录
-
-composer  
-
-textalk
 
 ## 文件说明
 
@@ -110,28 +104,20 @@ SnsNetwork.php     - Functions handling HTTP requests.
 
 examples/
 
-test_data.json          - Test data used in the test program, only used in the development server.
+test_data.json           - Test data used in the test program, only used in the development server.
 
-cancel_order.php        - Order submit and cancel.
+order_examples.php       - Order submit and check the status.
 
-order_example.php       - Order submit and check the status.
+payment_examples.php     - Create wallet, active it and use it to make a payment. Also use two test accounts for sending payments in SWT and currency.
 
-path_example.php        - Search for payment path then use the payment path to make a payment.
+transaction_examples.php - Show how to get transaction information.
 
-payment_example.php     - Use two test accounts for sending payments in SWT and currency.
-
-server_example.php      - Showed how to initial the servers.
-
-transaction_example.php - Show how to get transaction information.
-
-wallet_example.php      - Create wallet, active it and use it to make a payment.
-
-websocket_example.php   - Use Websocket to receive the API processing info.
+tum_examples.php         -  Issue custom Tum and query the Tum status.
 
 ## 程序示例
 
 To run the examples, install the necessary packages, copy the example files and run:
 
 ```php
-php payment_example.php
+php examples/payment_examples.php
 ```
