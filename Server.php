@@ -430,13 +430,20 @@ class WebSocketServer extends ServerClass
 class TumServer extends ServerClass
 { 
     //Tum server
-    //Tum version
+
+    //Input config info
+    private static $config = NULL;
     
     //Declare the instance 
     private static $instance = NULL;
 
     //reserved for DATA server URL
+<<<<<<< HEAD
     protected function __construct($in_url = NULL)
+=======
+    //or read from default config file
+    function __construct($in_url = NULL)
+>>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
     {
       //$this->serverURL = $inURL;
       if ( empty($in_url)){
@@ -453,7 +460,7 @@ class TumServer extends ServerClass
           parent::__construct($this->config->PRO->fingate);
 
           } catch (Exception $e) {
-            echo "Error in setup WebSocket server from the config\n";
+            echo "Error in setup Tum server from the config\n";
           }
 
         }else
@@ -480,14 +487,27 @@ class TumServer extends ServerClass
           {
             $this->serverURL = $this->config->PRO->fingate;
           }
+<<<<<<< HEAD
           else
             throw new Exception("Invalid input mode");
             
+=======
+          echo  $this->serverURL."\n";
+          return true;
+>>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
         }else
+        {
           echo "No configuration is set!";
           //reload the config file
+          return false;
+        }
       }else{
+<<<<<<< HEAD
         echo "Input mode is not valid!\n";
+=======
+        echo "Input need to be a boolean";
+        return false;
+>>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
       }
 
       echo "Server set to $this->serverURL\n";
@@ -525,11 +545,18 @@ class TumServer extends ServerClass
         $temp_cmd = strtoupper(trim($in_cmd['method']));
         if ( $temp_cmd == 'POST' || $temp_cmd == 'GET' 
             || $temp_cmd == 'DELETE' ){
+
         //Generate a full url with server address and API version
         //info
           $url = $this->serverURL . $in_cmd['url'];
+<<<<<<< HEAD
           //echo $url."\n";
           //echo $temp_cmd."\n";
+=======
+
+          echo "Submit to: ".$url."\n";
+          var_dump($in_cmd['params']);
+>>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
 
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 

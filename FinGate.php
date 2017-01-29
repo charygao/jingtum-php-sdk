@@ -83,8 +83,16 @@ class FinGate extends AccountClass
     //The amount of SWT to active one Jingtum account
     private $activation_amount = MIN_ACT_AMOUNT;
 
+<<<<<<< HEAD
     //api and tum_server
     private $tum_server = NULL;
+=======
+    private static $instance = NULL;
+
+    //Tum server (for issuing Tum) and API server (active wallets)
+    private $tum_server = NULL;
+
+>>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
     private $api_server = NULL;
 
     //Variables used to issue custom Tum
@@ -120,12 +128,18 @@ class FinGate extends AccountClass
       //Set default value
       $this->prefix = 'prefix'; 
 
+<<<<<<< HEAD
       //set Tum server
       $this->tum_server = TumServer::getInstance();
       $this->api_server = APIServer::getInstance();
 
 //      echo $this->api_server->getServerURL();
 
+=======
+      //set default API server and Tum server
+      $this->api_server = new APIServer();
+      $this->tum_server = new TumServer();
+>>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
     }
 
     /**
@@ -172,6 +186,7 @@ class FinGate extends AccountClass
           return true;
         }
         else{
+          throw new Exception('Input should be a Server object');
           return false;
         }
 
@@ -188,6 +203,7 @@ class FinGate extends AccountClass
           return true;
         }
         else{
+          throw new Exception('Input should be a Server object');
           return false;
         }
 
@@ -305,10 +321,23 @@ class FinGate extends AccountClass
      */
     public function setMode($in_mode)
     {
+<<<<<<< HEAD
         //default mode is production = 0
         $this->api_server->setMode($in_mode);
         $this->tum_server->setMode($in_mode);
    
+=======
+        if ( is_bool($test)){
+          $this->test_mode = $test;
+          $this->api_server->setTest($test);
+          $this->tum_server->setTest($test);
+          return true;
+        }else
+        {
+          echo "Input need to be a boolean";
+          return false;
+        }
+>>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
     }
     
     /**
