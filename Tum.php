@@ -116,10 +116,16 @@ class Amount extends Tum
   protected $value = '';
 
     //reserved for DATA server URL
-    function __construct($in_code, $in_issuer, $in_value)
+    function __construct($in_value, $in_code, $in_issuer)
     {
-        $this->value = $in_value;
+        if (is_numeric($in_value))
+          $this->value = strval($in_value);
+        else
+            throw new Exception('Error in input value!');
+
         parent::__construct($in_code, $in_issuer);
+
+        return $this->getAmount();
     }
 
     public function setValue($in_value)
@@ -139,7 +145,7 @@ class Amount extends Tum
     }
 
 
-    //
+    //return a JSON format
     public function getAmount()
     {   //create a amount JSON
         $amount['currency'] = $this->tum_code;

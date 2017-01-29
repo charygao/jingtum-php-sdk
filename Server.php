@@ -57,9 +57,9 @@ abstract class ServerClass
     //Protected attributes 
     protected $serverURL = '';
 
-    abstract function setTest();
+    abstract function setMode();
 
-    function __construct($in_url = NULL)
+    protected function __construct($in_url = NULL)
     {
 
       if ( empty($in_url) ){
@@ -67,6 +67,7 @@ abstract class ServerClass
       }
       else{
         $this->serverURL = $in_url;
+        echo 'Set to '.$in_url."\n";
       }
     }
 
@@ -76,7 +77,7 @@ abstract class ServerClass
      */
     public function getServerURL()
     {
-      if ( empty($in_url) ){
+      if ( empty($this->serverURL) ){
         throw new Exception ('Error of empty url!');
       }
       else
@@ -87,12 +88,12 @@ abstract class ServerClass
     {
       if ( $in_url == NULL ){
         printf("No server address found!\nPlease enter a valid server address!\n");
-        return true;
+        return false;
       }
       else{
         printf("Setup server %s\n", $in_url);;
         $this->serverURL = $in_url;
-        return false;
+        return true;
       }
     } 
 }//end Abstract class
@@ -114,7 +115,7 @@ class APIServer extends ServerClass
     private $prefix = 'prefix';
 
     //internal counter to generate transaction ID
-    private static $uuid = 0;
+    private $uuid = 0;
     
     //Declare the instance 
     private static $instance = NULL;
@@ -123,7 +124,7 @@ class APIServer extends ServerClass
     //function __construct($in_url, $in_version = 'v1')
     //Default set the Server to production server PRO
     //if the input is false, set to develop server DE
-    function __construct()
+    protected function __construct()
     {
       //Load the default config file
       //return should be an object holding JSON info.
@@ -150,6 +151,8 @@ class APIServer extends ServerClass
         }
       }else
         throw new Exception ('Error of read config info!');
+
+      
     }
    
     //Destructor
@@ -196,6 +199,9 @@ class APIServer extends ServerClass
             $params['t'] = $res['t'];
         }
 
+       echo $url."\n";
+        //var_dump($in_cmd['params']);
+
         //Submit the parameters to the SERVER
         $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
@@ -233,29 +239,31 @@ class APIServer extends ServerClass
       return $ret;
     }
   
-    //Set the test environment according tot he input flag
     //
-    public function setTest($test_flag = 'true')
+    //Set the development mode according to the input flag
+    //
+    public function setMode($in_mode = 1)
     {
       //use the input boolean flag to set the 
       //server url
-      if ( is_bool($test_flag)){
+      if ( is_integer($in_mode)){
         if ( is_object($this->config) ){
           //Conver the 
-          if ( $test_flag == true){ 
+          if ( $in_mode == 1){ 
             $this->serverURL = $this->config->DEV->api;
             $this->version = $this->config->DEV->api_version;
           }
-          else
+          else if($in_mode == 0)
           { 
+            //production mode
             $this->serverURL = $this->config->PRO->api; 
             $this->version = $this->config->PRO->api_version;
           }
         }else
-          echo "No configuration is set!";
+          echo "Configuration is not set!";
           //reload the config file 
       }else{
-        echo "Input need to be a boolean";
+        echo "Input need to be a valid mode";
       }
       echo "Server set to $this->serverURL\n";
     }
@@ -265,7 +273,7 @@ class APIServer extends ServerClass
     //Format as the follows:
     //prefix.yyyymmddHHMMss.000000
     //
-    public function getClientResourceID()
+    public function getClientId()
     {
       //API /v1/uuid，GET method
       //Increase the internal counter by 1
@@ -389,14 +397,14 @@ class WebSocketServer extends ServerClass
     }
 
     //Set the test server
-    public function setTest($test_flag = 'true')
+    public function setMode($in_mode = 1)
     {
-      //use the input boolean flag to set the
+      //use the input boolean flag to set the 
       //server url
-      if ( is_bool($test_flag)){
+      if ( is_integer($in_mode)){
         if ( is_object($this->config) ){
-          //Conver the
-          if ( $test_flag == true){
+          //Conver the 
+          if ( $in_mode == 1){ 
             $this->serverURL = $this->config->DEV->ws;
           }
           else
@@ -407,8 +415,9 @@ class WebSocketServer extends ServerClass
           echo "No configuration is set!";
           //reload the config file
       }else{
-        echo "Input need to be a boolean";
+        echo "Invalid input mode\n";
       }
+      echo "Server set to $this->serverURL\n";
     }
  
 }
@@ -427,7 +436,7 @@ class TumServer extends ServerClass
     private static $instance = NULL;
 
     //reserved for DATA server URL
-    function __construct($in_url = NULL)
+    protected function __construct($in_url = NULL)
     {
       //$this->serverURL = $inURL;
       if ( empty($in_url)){
@@ -457,28 +466,43 @@ class TumServer extends ServerClass
     }
 
     //Set the test server
-    public function setTest($test_flag = 'true')
+    public function setMode($in_mode = 1)
     {
-      //use the input boolean flag to set the
+      //use the input boolean flag to set the 
       //server url
-      if ( is_bool($test_flag)){
+      if ( is_integer($in_mode)){
         if ( is_object($this->config) ){
-          //Conver the
-          if ( $test_flag == true){
+          //Conver the 
+          if ( $in_mode == 1){ 
             $this->serverURL = $this->config->DEV->fingate;
           }
-          else
+          else if ( $in_mode == 0)
           {
             $this->serverURL = $this->config->PRO->fingate;
           }
+          else
+            throw new Exception("Invalid input mode");
+            
         }else
           echo "No configuration is set!";
           //reload the config file
       }else{
-        echo "Input need to be a boolean";
+        echo "Input mode is not valid!\n";
       }
+
+      echo "Server set to $this->serverURL\n";
     }
     
+        //Return an instance object
+    public static function getInstance()
+    {
+        if (! self::$instance instanceof self) {
+            self::$instance = new self();
+        }
+        
+        return self::$instance;
+    }
+
     /*
      * Submit the operations to the Tum server
      * for issuing Custom Tum 
@@ -504,7 +528,9 @@ class TumServer extends ServerClass
         //Generate a full url with server address and API version
         //info
           $url = $this->serverURL . $in_cmd['url'];
-    
+          //echo $url."\n";
+          //echo $temp_cmd."\n";
+
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
           $temp_cmd);

@@ -64,7 +64,7 @@ class CancelOrderOperation extends OperationClass
  
 //DELETE方法请求时需设置Content-Length消息头
 //validateAddress
-    public function submit()
+    public function submit($call_back_func=null)
     {
         $cmd['method'] = 'DELETE';
         $cmd['url'] = str_replace("{0}", $this->src_address, ORDERS).$this->order_num;
@@ -72,8 +72,14 @@ class CancelOrderOperation extends OperationClass
 
         $cmd['params']= $params;
         
+
         //submit the command and return the results 
-        return $this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret);
+        if ($call_back_func)
+        {
+          $call_back_func($this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret));
+        }
+        else
+          return $this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret);
     }
     
 }//end 

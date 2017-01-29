@@ -30,10 +30,9 @@ class Exception extends \Exception {}
 class AccountClass
 {
     //Operations need to submit
-    protected $address = '';
-    protected $secret = '';
+    protected $address = null;
+    protected $secret = null;
     
-    protected $ecdsa = null;
 
     //Note: Parent constructors are not called implicitly 
     //if the child class defines a constructor.
@@ -42,48 +41,48 @@ class AccountClass
     //If the child does not define a constructor then it may be inherited 
     //from the parent class just like a normal class method 
     //(if it was not declared as private). 
-    function __construct($in_address, $in_secret) {
+    protected function __construct($in_secret, $in_address = null) {
 
     //Add the test of the input address
-       $this->ecdsa = new ECDSA();
-       if ( ! empty($in_address) && ! $this->ecdsa->validateAddress($in_address) )
-       {
-         throw new Exception('Invalid address');
-       }
-       if ( ! empty($in_secret) && ! $this->ecdsa->validateWifKey($in_secret) ){
-         throw new Exception('Invalid secret');
-       }
-       $this->secret = $in_secret;
-       $this->address = $in_address;       
+       
+      if ( ! empty($in_secret) ){
+       
+      $this->secret = $in_secret;
+
+      //To check the address and secret
+      $ecdsa = new ECDSA($in_secret);
+
+      $adr = $ecdsa->getAddress();
+
+      //Generate the address from the secret using ECDSA class functions
+      echo "Account class: $in_address .vs. $adr \n";
+
+      if ( empty($in_address) )
+      {
+        //if the input address is empty, use generated address
+        //as address
+
+        $this->address = $adr;//$in_address;       
+      }else{
+        //otherwise, compare with the input address,
+        //only when they match, use it.
+      
+        if ( strcmp($in_address, $adr) != 0)
+          throw new Exception('Unmatch input address with secret!');
+        else
+        
+          $this->address = $in_address;
+
+      }
+      }
     }
    
-    public function setAccount($in_address, $in_secret)
-    {
-       $this->secret = $in_secret;
-       $this->address = $in_address;       
-    }
    
     public function getAddress()
     {
       return $this->address; 
     }
 
-    public function setAddress($in_address)
-    {
-      if ( ! empty($in_address) && ! $this->ecdsa->validateAddress($in_address) ){
-          throw new Exception('Invalid address');
-      }
-      $this->address = $in_address; 
-    }
-
-    public function setSecret($in_secret)
-    {
-      if ( ! empty($in_secret) && ! $this->ecdsa->validateWifKey($in_secret) ){
-        throw new Exception('Invalid secret');
-      }
-
-      $this->secret = $in_secret; 
-    }
     public function getSecret()
     {
       return $this->secret; 

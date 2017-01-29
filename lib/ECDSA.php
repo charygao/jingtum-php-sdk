@@ -46,8 +46,8 @@ class ECDSA
         $this->n = gmp_init('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141', 16);
         
         $this->G = [
-            'x' => gmp_init('55066263022277343669578718895168534326250603453777594175500187360389116729240'),
-            'y' => gmp_init('32670510020758816978083085130507043184471273380659243275938904335757337482424')
+            'x' => gmp_init('55066263022277343669578718895168534326250603453777594175500187360389116729240',10),
+            'y' => gmp_init('32670510020758816978083085130507043184471273380659243275938904335757337482424',10)
         ];
         
         $this->networkPrefix = '00';
@@ -188,6 +188,9 @@ class ECDSA
      */
     public function hash160($data)
     {
+        $res1 = hash('sha256', $data);
+        $res2 = hash('ripemd160', hex2bin($res1));
+
         return hash('ripemd160', hex2bin(hash('sha256', $data)));
     }
 
@@ -388,6 +391,7 @@ class ECDSA
         
         $gcd = gmp_strval(gmp_gcd(gmp_sub($pt1['x'], $pt2['x']), $p));
         if ($gcd !== '1') {
+            printf( "gcd: %s, x1:%s x2:%s\n", $gcd,gmp_strval($pt1['x'], 16),gmp_strval($pt2['x'], 16));
             throw new \Exception('This library doesn\'t yet supports point at infinity. See https://github.com/BitcoinPHP/BitcoinECDSA.php/issues/9');
         }
         
@@ -420,11 +424,9 @@ class ECDSA
      */
     public function mulPoint($k, Array $pG, $base = null)
     {
-        //printf("mulpoint:[%s] with %d\n",$k, $base);
         // in order to calculate k*G
         if ($base === 16 || $base === null || is_resource($base))
             $k = gmp_init($k, 16);
-//printf("k value: %s\n", $k);
         if ($base === 10)
             $k = gmp_init($k, 10);
         $kBin = gmp_strval($k, 2);
@@ -582,11 +584,19 @@ class ECDSA
      */
     public function getDerPubKeyWithPubKeyPoints($pubKey, $compressed = true)
     {
+        while (strlen($pubKey['x']) < 64)
+            $pubKey['x'] = '0' . $pubKey['x'];
+        while (strlen($pubKey['y']) < 64)
+            $pubKey['y'] = '0' . $pubKey['y'];
+
+
         if ($compressed === false) {
             return '04' . $pubKey['x'] . $pubKey['y'];
         } else {
             if (gmp_strval(gmp_mod(gmp_init($pubKey['y'], 16), gmp_init(2, 10))) === '0')
+            {        
                 $pubKey = '02' . $pubKey['x']; // if $pubKey['y'] is even
+            }    
             else
                 $pubKey = '03' . $pubKey['x']; // if $pubKey['y'] is odd
             
@@ -634,12 +644,12 @@ class ECDSA
         if (! isset($this->private_gen)) {
             throw new \Exception('No Private Generator was defined');
         }
-        
+
+        //$entropy = $this->base58_decode($secret);
         $pubKey = $this->mulPoint($secret, [
             'x' => $G['x'],
             'y' => $G['y']
         ], $base);
-        
         $pubKey['x'] = gmp_strval($pubKey['x'], 16);
         $pubKey['y'] = gmp_strval($pubKey['y'], 16);
         
@@ -685,13 +695,16 @@ class ECDSA
     {
 
         if (empty($pubKeyPts))
+        {
             $pubKeyPts = $this->getPubKeyPoints($secret, $base);
+        }
 //got cosntants???
  
         if (gmp_strval(gmp_mod(gmp_init($pubKeyPts['y'], 16), gmp_init(2, 10))) === '0')
             $compressedPubKey = '02' . $pubKeyPts['x']; // if $pubKey['y'] is even
         else
             $compressedPubKey = '03' . $pubKeyPts['x']; // if $pubKey['y'] is odd
+
         
         return $compressedPubKey;
     }
@@ -722,12 +735,13 @@ class ECDSA
                 $address = $this->getUncompressedPubKey();
             }
         }
-        
+
+
         $address = $this->getNetworkPrefix() . $this->hash160(hex2bin($address));
-        
         // checksum
-        $address = $address . substr($this->hash256(hex2bin($address)), 0, 8);
-        $address = $this->base58_encode($address);
+        $addresshash = $address . substr($this->hash256(hex2bin($address)), 0, 8);
+
+        $address = $this->base58_encode($addresshash);
 
         if ($this->validateAddress($address))
             return $address;
@@ -777,6 +791,7 @@ class ECDSA
             $private_gen = $this->private_gen;
             
             $public_gen = $this->computePubKey($private_gen);
+
             $seq = 0;
             
             do {
@@ -785,22 +800,57 @@ class ECDSA
                 
                 $key = $this->halfhash512($data);
                 
+                //printf ("key: %s privgen: %s\n", $key, $private_gen);
                 $seq += 1;
             } while (gmp_cmp(gmp_init($key, 16), gmp_sub($this->n, gmp_init(1, 10))) === 1);
+
+            //printf("private key : %s\n", gmp_strval(gmp_mod(gmp_add(gmp_init($key, 16), gmp_init($private_gen, 16)), $this->n), 16));
             $this->k = gmp_mod(gmp_add(gmp_init($key, 16), gmp_init($private_gen, 16)), $this->n) . '';
         }
-//        else
-//          printf("key value is set[%s]\n",$this->k);
-        
+
+
         return $this->k;
     }
 
     //Compute the public key and return the results
     public function getPubKey()
     {
-        //printf("getPubKey from [%s]\n", $this->getPrivateKey());
-        return $this->computePubKey($this->getPrivateKey(), 10);
+        $priv = $this->getPrivateKey();
+
+        $private_gen = $this->private_gen;
+        
+        $public_gen = $this->computePubKey($private_gen);
+
+
+        $seq = 0;
+        
+        do {
+
+            //$pubgenrev = strrev($public_gen);
+            
+            $data = hex2bin($public_gen) . hex2bin(sprintf("%08x", 0)) . hex2bin(sprintf("%08x", $seq));
+
+            $key = $this->halfhash512($data);
+            
+            $seq += 1;
+        } while (gmp_cmp(gmp_init($key, 16), gmp_sub($this->n, gmp_init(1, 10))) === 1);
+
+        //multiply with ECPoint
+        $rPt = $this->mulPoint($key, $this->G);
+
+        //get pubgen ec point
+        $pubgenpoint = $this->getPubKeyPointsWithDerPubKey($public_gen);
+
+        // add together
+        $resultingPt = $this->addPoints($rPt, ['x'=>gmp_init($pubgenpoint['x'], 16), 'y'=>gmp_init($pubgenpoint['y'], 16)]);
+
+        //compresss
+        $pubkey = $this->getDerPubKeyWithPubKeyPoints(['x'=>gmp_strval($resultingPt['x'],16), 'y'=>gmp_strval($resultingPt['y'],16)]);
+
+        return $pubkey;
+
     }
+
 
     /**
      * *
@@ -848,9 +898,10 @@ class ECDSA
     public function validateWifKey($wif)
     {
         $key = $this->base58_decode($wif, true);
-        
+
         $length = strlen($key);
         $checksum = $this->hash256(hex2bin(substr($key, 0, $length - 8)));
+
         if (substr($checksum, 0, 8) === substr($key, $length - 8, 8))
             return true;
         else

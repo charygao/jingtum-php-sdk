@@ -17,6 +17,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *   OrderOperation
+ * 01/18/2017
+ * Added the 增加setPrice选项和setPair
+ * setType(Order.SELL);
+ * setAmount(1000.00);
+ * setPrice(0.0005);
  */
 
 namespace JingtumSDK;
@@ -45,10 +50,17 @@ class OrderOperation extends OperationClass
 {
     //Operations need to submit
     private $order_type = '';//sell or buy
-    private $taker_pays = '';
-    private $taker_gets = '';
+    private $tum0 = '';//
+    private $tum1 = '';
    
+    private $src_amount = '';
+    private $src_price = '';
+
     
+    const BUY = 'buy';
+    const SELL = 'sell';
+  
+
     //Note: Parent constructors are not called implicitly 
     //if the child class defines a constructor.
     //In order to run a parent constructor, a call to
@@ -59,83 +71,164 @@ class OrderOperation extends OperationClass
      function __construct($in_wallet) {
        parent::__construct($in_wallet);
 
-       $this->taker_pays = '';
-       $this->taker_gets= '';
+       $this->tum0 = '';
+       $this->tum1 = '';
        $this->order_type = '';
+
+       $this->src_amount = '';
+       $this->src_price = '';
    }
   
     //Setup the order type 
     //Only two order types were allowed
     //sell, buy
-    public function setOrderType($in_type)
+    public function setType($in_type)
     {
        $check_type = strtoupper(trim($in_type));
-       if ( $check_type  === 'SELL' or
-            $check_type === 'BUY') 
-       $this->order_type = $in_type;
+       if ( $check_type  === 'SELL' ||
+            $check_type === 'BUY') {
+         $this->order_type = $in_type;
+       }
        else{
-         printf("Errors in the input type %s\n",$in_type);
+         throw new Exception("Error in the input type");
+       }
+       //may need to check if the value is boolean or not
+    }
+
+    //input string should have the format as
+    //tumCode+TumIssuer
+
+    public function setTumFromPairStr($in_str)
+    {
+      $pair = explode(':',$in_str);
+
+      //If the input has two part, 
+      //assume one is the issuer
+      if ( count($pair) == 2){
+        $out_tum['currency'] = $pair[0];
+        $out_tum['counterparty'] = $pair[1];
+      }
+      else
+      {
+        if ( count($pair) == 1){
+          //only for SWT
+          $out_tum['currency'] = $pair[0];
+          $out_tum['counterparty'] = '';
+        }else
+          throw new Exception("Input should have a pair");
+      }
+      return $out_tum;
+    }
+
+    //Setup the tum pair
+    public function setPair($in_str)
+    {
+       
+       if ( is_string($in_str)) {
+        $pair = explode('/', $in_str);
+
+
+        if (count($pair) != 2)
+          throw new Exception("Input should have a pair", 1);
+          
+          echo "set taker pays $pair[0]\n";
+
+          $this->tum0 = $this->setTumFromPairStr($pair[0]);
+
+          $this->tum1 = $this->setTumFromPairStr($pair[1]);
+
+          //var_dump($this->tum0);
+          //var_dump($this->tum1);
+
+       }
+       else{
+         printf("Errors in the input Amount %s\n",$in_value);
          return false;
        }
        //may need to check if the value is boolean or not
     }
 
-    //using all the info to create the operation URL
-    //to use for Server submission
-    //return the operation data
-    //method = 'GET', 'POST', 'DEL' for network requests
-    //url = URL used for commands
-    //params = Parameters needed to post to the server.
-    public function setTakePays($in_tum_amount)
+    //Setup the source tum amount
+    public function setAmount($in_value)
     {
-       if ( is_array($in_tum_amount)){
-       $this->taker_pays['currency'] = $in_tum_amount['currency'];
-       $this->taker_pays['counterparty'] = $in_tum_amount['issuer'];
-       $this->taker_pays['value'] = strval($in_tum_amount['value']);
-       }else
-       {
-         if ( is_object($in_tum_amount)){
-           $this->taker_pays['currency'] = $in_tum_amount->getCurrency();
-           $this->taker_pays['counterparty'] = $in_tum_amount->getIssuer();
-           $this->taker_pays['value'] = strval($in_tum_amount->getValue());
-
-         }
-         else
-           throw new Exception('Input should be an array or Amount object!');
+       
+       if ( is_numeric($in_value)) {
+         $this->src_amount = $in_value;
        }
+       else{
+         printf("Errors in the input Amount %s\n",$in_value);
+         return false;
+       }
+       //may need to check if the value is boolean or not
     }
-    
-    public function setTakeGets($in_tum_amount)
-    {
-      if ( is_array($in_tum_amount)){
-        $this->taker_gets['currency'] = $in_tum_amount['currency'];
-        $this->taker_gets['counterparty'] = $in_tum_amount['issuer'];
-        if ( !is_string($in_tum_amount['value']))
-          $this->taker_gets['value'] = strval($in_tum_amount['value']);
-        else
-          $this->taker_gets['value'] = $in_tum_amount['value'];
-      }else
-      {
-        if ( is_object($in_tum_amount)){
-          $this->taker_gets['currency'] = $in_tum_amount->getCurrency();
-          $this->taker_gets['counterparty'] = $in_tum_amount->getIssuer();
-          $this->taker_gets['value'] = strval($in_tum_amount->getValue());
 
-        }
-        else
-           throw new Exception('Input should be an array or Amount object!');
-      } 
+    //Setup the source tum amount
+    public function setPrice($in_price)
+    {
+       
+       if ( is_numeric($in_price)) {
+        $this->src_price = $in_price;
+     
+       }
+       else{
+         printf("Errors in the input price %s\n",$in_price);
+         return false;
+       }
+       //may need to check if the value is boolean or not
     }
+
 
 
 
     //May need to check if the cmd is valid or not.
-    public function submit()
+    //Add the check of the taker_pays 
+    //and the taker_gets
+
+    public function submit($call_back_func=null)
     {
         //info to build the server URL
+        if ( $this->order_type == '')
+          throw new Exception('Order type is not set');
+        
+        if ( $this->tum0 == '' || $this->tum1 == '')
+          throw new Exception('Missing tum information');
+
+        if ( $this->src_amount == '')
+          throw new Exception('Source amount is not set');
+
+        if ( $this->src_price == '')
+          throw new Exception('Price is not set');
+
         $order['type'] = $this->order_type;
-        $order['taker_pays'] = $this->taker_pays;
-        $order['taker_gets'] = $this->taker_gets;
+
+        //Set the taker_pays and gets according to
+        //the order type
+        $des_amount = $this->src_amount * $this->src_price;
+        if ( $this->order_type == 'sell'){
+          
+          //sell the tum owned
+          $taker_pays = $this->tum0;
+          $taker_gets = $this->tum1;
+
+          $taker_pays['value'] = strval($this->src_amount);
+          $taker_gets['value'] = strval($des_amount);          
+        }else{
+          
+          //Sell
+          $taker_pays = $this->tum1;
+          $taker_gets = $this->tum0;
+
+          $taker_pays['value'] = strval($des_amount);
+          $taker_gets['value'] = strval($this->src_amount);   
+        }
+
+        echo $this->src_price."\n";
+        echo $this->src_amount."\n";
+
+
+
+        $order['taker_pays'] = $taker_pays;
+        $order['taker_gets'] = $taker_gets;
         
         //info to submit
         $params['secret'] = $this->src_secret;
@@ -147,8 +240,14 @@ class OrderOperation extends OperationClass
         $cmd['params'] = $params;
 
         //submit the command and return the results 
-        return $this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret);
-        return $cmd;
+                //submit the command and return the results 
+        if ($call_back_func)
+        {
+          $call_back_func($this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret));
+        }
+        else
+          return $this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret);
+   
     }
     
 }//end 

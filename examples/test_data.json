@@ -1,23 +1,46 @@
 {
   "DEV": {
+    "ws": "wss://tapi.jingtum.com:5443",
+    "api": "https://tapi.jingtum.com",
     "api_version": "v1",
+    "fingate_server": "https://tfingate.jingtum.com",
     "tum_pair1":"SWT+",
     "tum_pair2":"USD+jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",
     "tum_pair3":"CNY+jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",
     "fingate1":{
-      "address": "jLRdkbLyEwMLKAeGHMh8zfxWQDagPmZEaw",
-      "secret": "ssSHuRBvRt4TeB8eVE8CBRoB8cVAe",
-      "tum1":"get it from tfingate.jingtum.com",
-      "custom_id": "get it from tfingate.jingtum.com",
-      "sign_key":"get it from tfingate.jingtum.com"
+      "address": "jpLpucnjfX7ksggzc9Qw6hMSm1ATKJe3AF",
+      "secret": "sha4eGoQujTi9SsRSxGN5PamV3YQ4",
+      "tum1_order_id": "JT1478834568719",
+      "tum1":"",
+      "tum1_order1":"prefix1479331641000001",
+      "tum2":"8200000005000020170006000000000020000001",
+      "custom": "00000005",
+      "sign_key":"b33802b7f345fc44e6bd1d3b11c86b412de9ec38"
+    },
+    "wallet1":{
+      "address":"jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",
+      "secret":"ssPitXium2f2ZxifEaAB2YTpJUpJV",
+      "balance1":{
+        "value": 129757.754575,
+        "issuer":" ",
+        "code":"SWT"
+       },
+      "balance2":{
+         "value": 5.700000549841681,
+         "issuer":"jBciDE8Q3uJjf111VeiUNM775AMKHEbBLS",
+         "code":"CNY"}
     },
     "wallet2":{
-      "address":"jnxxSNnx6yshDKDZUSaxjJi272aREJ3W1R",
-      "secret":"sp5JPhzoZCvbitffHiJ1VfFo2M9gw"
+      "address":"jpyyHbEWiuCA6nX37G8gGQvkDRrYJQzcXb",
+      "secret":"ssHC71HCbhp6FVLLcK2oyyUVjcAY4"
     },
     "wallet3":{
-      "address":"jQfhBq2ssuCm7Yi7inGtifi4xafHEW8CYf",
-      "secret":"snarAqwsCAb3bANJi4LCCMtpt2eN2"
+      "address":"jJwtrfvKpvJf2w42rmsEzK5fZRqP9Y2xhQ",
+      "secret":"shNKNNtxgBgZDa3YADcAKBFy5W5kK"
+    },
+    "wallet4":{
+      "address":"j44rkkVKxnqhm9cP7kQqpj27YGYTFAEFRh",
+      "secret":"shNKNNtxgBgZDa3YADcAKBFy5W5kK"
     },
     "CNYAmount1":{
       "currency":"CNY",

@@ -105,10 +105,11 @@ class Wallet extends AccountClass
     private $api_server = NULL;//Server
     private $path_key_list = NULL;
 
-    function __construct($address, $secret)
+    function __construct($secret, $address=NULL)
     {
-        parent::__construct($address, $secret);
-        $this->api_server = new APIServer();
+        parent::__construct($secret, $address);
+
+        $this->api_server = APIServer::getInstance();
     }
 
     function __destruct() {
@@ -117,8 +118,9 @@ class Wallet extends AccountClass
 
     /*
      * Set the API server
+     * 
     */
-    public function setAPIServer($in_server)
+    protected function setAPIServer($in_server)
     {
         //Init the Server class object
         if ( is_object($in_server) ){
@@ -130,13 +132,7 @@ class Wallet extends AccountClass
           return false;
     }
 
-    //Switch to test environment
-    public function setTest($in_flag)
-    {
-      if ( is_object($this->api_server) ){
-          $this->api_server->setTest($in_flag);
-      }
-    }
+
     /*
      * get the API server
     */
@@ -257,17 +253,33 @@ class Wallet extends AccountClass
     
     
     /**
-     *
+     * Add the options
+     * 
      * @param string $currency            
      * @param string $counter_party            
      * @return multitype:
      */
-    public function getBalance($currency = '', $counter_party = '')
+    public function getBalance($currency = '', $counter_party = null)
     {
       $cmd['method'] = 'GET';
-      $cmd['url'] = str_replace("{0}",$this->address, BALANCES);
+      //$cmd['url'] = str_replace("{0}",$this->address, BALANCES);
 
-      $ecdsa =  new ECDSA();
+      $in_options['currency'] = $currency;
+      $in_options['counter_party'] = $counter_party;
+      
+      //build the url options
+      if ( ! empty($in_options) )
+      {
+          //parse the options into string
+          $parm_str = SnsNetwork::makeQueryString($in_options);
+          //Attach to the end of the URL
+          //
+          $cmd['url'] = str_replace("{0}",$this->address, BALANCES)
+            .'?'.$parm_str;
+      }
+      else
+        $cmd['url'] = str_replace("{0}",$this->address, BALANCES);
+
 
       $cmd['params'] = '';
 
@@ -344,7 +356,8 @@ class Wallet extends AccountClass
      * @param unknown $amount            
      * @return the path from :
      */
-    public function getPathList($dest_address, $amount)
+    //public function getPathList($dest_address, $amount)
+    public function getChoices($dest_address, $amount)
     {
         if ( is_object($amount)){
           $payment = $amount->getValue().'+'.$amount->getCurrency().'+'.$amount->getIssuer();

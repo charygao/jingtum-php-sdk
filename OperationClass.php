@@ -47,7 +47,7 @@ abstract class OperationClass
     //method = 'GET', 'POST', 'DEL' for network requests
     //url = URL used for commands
     //params = Parameters needed to post to the server.
-    abstract protected function submit();
+    abstract protected function submit($call_back);
     
     function __construct($in_wallet)
     {

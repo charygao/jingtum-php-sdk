@@ -31,7 +31,7 @@
  * setPathRate		设置支付路径的可承受比例
  * setPrefix		设置交易流水号前缀
  * setServerInfo	设置api服务器
- * setTest		设置测试模式
+ * setMode  		设置测试模式
  * setTrustLimit	设置银关默认的信任额度
  * setWebSocketServer	设置Websocket服务器
  * 
@@ -42,8 +42,9 @@ namespace JingtumSDK;
 use JingtumSDK\lib\SnsNetwork;
 use JingtumSDK\lib\ECDSA;
 use JingtumSDK\AccountClass;
-use JingtumSDK\Wallet;
+//use JingtumSDK\Wallet;
 use JingtumSDK\APIServer;
+use JingtumSDK\TumServer;
 use WebSocket\Client;
 
 require_once 'vendor/autoload.php';
@@ -53,7 +54,7 @@ require_once './lib/ConfigUtil.php';
 require_once './lib/Constants.php';
 require_once 'AccountClass.php';
 require_once 'Server.php';
-require_once 'Wallet.php';
+//require_once 'Wallet.php';
 
 /**
  * require PHP install the cURL extension.
@@ -70,7 +71,8 @@ if (! function_exists('json_decode')) {
     throw new Exception('JingtumSDK needs the JSON PHP extension.');
 }
 
-class FinGate extends AccountClass 
+//class FinGate extends AccountClass 
+class FinGate extends AccountClass
 {
     //internal prefix to create transaction ID
     private $prefix = 'prefix';
@@ -81,8 +83,8 @@ class FinGate extends AccountClass
     //The amount of SWT to active one Jingtum account
     private $activation_amount = MIN_ACT_AMOUNT;
 
-    private static $instance = NULL;
-
+    //api and tum_server
+    private $tum_server = NULL;
     private $api_server = NULL;
 
     //Variables used to issue custom Tum
@@ -90,9 +92,27 @@ class FinGate extends AccountClass
 
     private $sign_key = '';
 
-    public function __construct($address = '', $secret = '')
+    //Internal wallet object used to active 
+    //0 - production mode
+    //1 - develop mode
+    //2 - other mode, reserved
+
+    const DEVELOPMENT = 1;
+
+    const PRODUCTION = 0;
+
+
+    /**
+     * 静态成品变量 保存全局实例
+     */
+    private static  $_instance = NULL;
+
+    //use Singleton mode
+    //The constructor __construct() is declared as protected to prevent creating 
+    //a new instance outside of the class via the new operator.
+    protected function __construct()//$secret，$address = NULL)
     {
-      parent::__construct($address, $secret);
+      parent::__construct($secret=NULL, $address=NULL);
 
       //Restart the UUID 
       $this->uuid = 0;
@@ -100,15 +120,51 @@ class FinGate extends AccountClass
       //Set default value
       $this->prefix = 'prefix'; 
 
-      //set default API server and Tum server
+      //set Tum server
+      $this->tum_server = TumServer::getInstance();
+      $this->api_server = APIServer::getInstance();
+
+//      echo $this->api_server->getServerURL();
 
     }
 
+    /**
+     * static，返还此类的唯一实例
+     */
+    public static function getInstance() {
+        if (is_null(self::$_instance)) {
+            self::$_instance = new FinGate();
+        }
+ 
+        return self::$_instance;
+    }
+
+    /**
+     * 防止用户克隆实例，使用private
+     */
+    private function __clone(){
+        die('Clone is not allowed.' . E_USER_ERROR);
+    }
+
+    /**
+     * 防止unserializing of an instance of the class via the global function unserialize() .使用private
+     */
+    private function __wakeup(){
+        die('unserialize is not allowed.' . E_USER_ERROR);
+    }
+
+
+    //Setup an account for FinGate
+    public function setAccount($in_secret, $in_address)
+    {
+       parent::__construct($in_secret, $in_address);
+
+    }
 
     /**
      * Set API Server, reserved for future usage. 
      */
-    public function setAPIserver($in_server)
+    private function setAPIserver($in_server)
     {
         //Init the Server class object
         if ( is_object($in_server) ){
@@ -124,7 +180,7 @@ class FinGate extends AccountClass
     /**
      * Set Tum Server
      */
-    public function setTumserver($in_server)
+    private function setTumserver($in_server)
     {
         //Init the Server class object
         if ( is_object($in_server) ){
@@ -135,21 +191,6 @@ class FinGate extends AccountClass
           return false;
         }
 
-    }
-
-    /**
-     *
-     * @return FinGate object
-     * The same as get FinGate
-     */
-    public static function getInstance()
-    {
-        if (! self::$instance instanceof self) {
-            // echo 'lgh-big';
-            self::$instance = new self();
-        }
-        
-        return self::$instance;
     }
 
      /**
@@ -163,6 +204,23 @@ class FinGate extends AccountClass
         return $this->activation_amount;
     }
     
+    //Return a uuid from the API SERVER
+    //Change it to use prefix and UNIX time
+    //Format as the follows:
+    //prefix.yyyymmddHHMMss.000000
+    //
+    public function getClientResourceID()
+    {
+      //API /v1/uuid，GET method
+      //Increase the internal counter by 1
+      $id = sprintf("%06d",++$this->uuid);
+      //keep it between 1 and 999999
+      if ( $this->uuid > 999999 )
+        $this->uuid = 0;
+
+      return $this->prefix.time().$id;
+    }
+
     /**
      *
      * @return the $token
@@ -185,9 +243,9 @@ class FinGate extends AccountClass
     /**
      * Return the signKey for the FinGate
      * @return the $sign_key
-     * getCustomSecret() -> getSignKey
+     * getCustomSecret() -> getKey
      */
-    public function getSignKey()
+    public function getKey()
     {
         return $this->sign_key;
     }
@@ -242,10 +300,15 @@ class FinGate extends AccountClass
     
      /**
      * 设置测试模式
+     * Set the API/Tum Server to 
+     * the correct settings
      */
-    public function setTest($test)
+    public function setMode($in_mode)
     {
-        $this->test_mode = $test;
+        //default mode is production = 0
+        $this->api_server->setMode($in_mode);
+        $this->tum_server->setMode($in_mode);
+   
     }
     
     /**
@@ -262,7 +325,7 @@ class FinGate extends AccountClass
      * @param string $sign_key
      * setCustomSecret -> setSignKey
      */
-    public function setSignKey($sign_key)
+    public function setKey($sign_key)
     {
         $this->sign_key = $sign_key;
     }
@@ -292,22 +355,7 @@ class FinGate extends AccountClass
         $this->sign_key = $in_sign_key;
     }
     
-    //Return a uuid from the API SERVER
-    //Change it to use prefix and UNIX time
-    //Format as the follows:
-    //prefix.yyyymmddHHMMss.000000
-    //
-    public function getClientResourceID()
-    {
-      //API /v1/uuid，GET method
-      //Increase the internal counter by 1
-      $id = sprintf("%06d",++$this->uuid);
-      //keep it between 1 and 999999
-      if ( $this->uuid > 999999 )
-        $this->uuid = 0;
 
-      return $this->prefix.time().$id;
-    }
 
     /**
      *
@@ -320,8 +368,10 @@ class FinGate extends AccountClass
      * @param unknown $address            
      * @return boolean
      * issueCustom --> issueCustomTum
+     * 01/17/2017
+     * Added an input address to receive the issuing tum.
      */
-    public function issueCustomTum($uuid, $currency, $amount)
+    public function issueCustomTum($currency, $amount, $uuid, $in_address)
     {
         //Need to convert the input into a float with two decimal
         $formatted_amount = sprintf("%01.2f", $amount);
@@ -331,9 +381,9 @@ class FinGate extends AccountClass
         $params['order'] = $uuid;
         $params['currency'] = $currency;
         $params['amount'] = $formatted_amount;
-        $params['account'] = $this->address;
+        $params['account'] = $in_address;
  
-        $hmac = $params['cmd'].$params['custom']. $uuid . $currency . $formatted_amount.$this->address;
+        $hmac = $params['cmd'].$params['custom']. $uuid . $currency . $formatted_amount.$in_address;
 
         $params['hmac'] = hash_hmac('md5', $hmac, $this->sign_key);
         
@@ -404,8 +454,11 @@ class FinGate extends AccountClass
      * @param $dest_address wallet address to active            
      * @return multitype:
     */
-    public function activeWallet($dest_address)
+    public function activeWallet($dest_address, $call_back_func = NULL)
     {
+        if ( empty($this->secret) )
+            throw new Exception("Need to set FinGate account");
+            
         $amount['currency'] = 'SWT';
         $amount['value'] = strval($this->activation_amount);
         $amount['issuer'] = '';
@@ -427,7 +480,12 @@ class FinGate extends AccountClass
         $cmd['method'] = 'POST';
         $cmd['params'] = $params;
         $cmd['url'] = str_replace("{0}", $this->address, PAYMENTS) . '?validated=true';
-        return $this->api_server->submitRequest($cmd, $this->address, $this->secret);
+         if ($call_back_func)
+        {
+          $call_back_func($this->api_server->submitRequest($cmd, $this->address, $this->secret));
+        }
+        else
+          return $this->api_server->submitRequest($cmd, $this->address, $this->secret);
     }
  
     /**
@@ -440,18 +498,20 @@ class FinGate extends AccountClass
     */
     public function createWallet()
     {
-/*        $ecdsa = new ECDSA();
+        $ecdsa = new ECDSA();
         $ecdsa->generateRandomPrivateKey();
 
         $secret = $ecdsa->getWif();
         $address = $ecdsa->getAddress();
 
-        $ret = new Wallet($address, $secret);
-        $ret->setAPIserver($this->api_server);*/
+        $ret = new Wallet($secret, $address);
+
+        return $ret;
+
       //API /v1/uuid，GET method
         $ret = $this->api_server->getNewWalletFromServer();
         if ( $ret['success'] == true ){
-        $wt = new Wallet($ret['wallet']['address'], $ret['wallet']['secret']);
+        $wt = new Wallet($ret['wallet']['secret'], $ret['wallet']['address']);
         return $wt;
         }
         else{
