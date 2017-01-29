@@ -5,7 +5,7 @@
   "description": "jingtum-php-sdk is a client-side PHP library for communicating with the Jingtum API/Tum/Websocket servers. It is used for building Jingtum applications. It provides networking layer APIs and necessary facilities for building and signing payments/orders, for communicating with the Jingtum network instance, and for submitting payments/order or querying transactions history from Jingtum blockchain platform.",
   "keywords": ["jingtum","sdk","blockchain"],
   "homepage": "https://github.com/jingtum/jingtum-php-sdk",
-  "license": "Apache License, Version 2.0",
+  "license": "Apache-License-Version-2.0",
   "authors": [
   {
     "name": "Jingtum, Inc.",

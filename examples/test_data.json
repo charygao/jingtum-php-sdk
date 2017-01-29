@@ -8,7 +8,6 @@
     "tum_pair2":"USD+jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",
     "tum_pair3":"CNY+jMcCACcfG37xHy7FgqHerzovjLM5FCk7tT",
     "fingate1":{
-<<<<<<< HEAD
       "address": "jpLpucnjfX7ksggzc9Qw6hMSm1ATKJe3AF",
       "secret": "sha4eGoQujTi9SsRSxGN5PamV3YQ4",
       "tum1_order_id": "JT1478834568719",
@@ -30,13 +29,6 @@
          "value": 5.700000549841681,
          "issuer":"jBciDE8Q3uJjf111VeiUNM775AMKHEbBLS",
          "code":"CNY"}
-=======
-      "address": "jLRdkbLyEwMLKAeGHMh8zfxWQDagPmZEaw",
-      "secret": "ssSHuRBvRt4TeB8eVE8CBRoB8cVAe",
-      "tum1":"8100000005000020170006201800060020000001",
-      "custom_id": "00000005",
-      "sign_key":"47bd6c8a225cbe4c9d5dbbf2f7dd740acc6537d4"
->>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
     },
     "wallet2":{
       "address":"jpyyHbEWiuCA6nX37G8gGQvkDRrYJQzcXb",

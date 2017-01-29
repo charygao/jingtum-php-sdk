@@ -199,9 +199,6 @@ class APIServer extends ServerClass
             $params['t'] = $res['t'];
         }
 
-       echo $url."\n";
-        //var_dump($in_cmd['params']);
-
         //Submit the parameters to the SERVER
         $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
@@ -432,18 +429,14 @@ class TumServer extends ServerClass
     //Tum server
 
     //Input config info
-    private static $config = NULL;
+    private $config = NULL;
     
     //Declare the instance 
     private static $instance = NULL;
 
     //reserved for DATA server URL
-<<<<<<< HEAD
-    protected function __construct($in_url = NULL)
-=======
     //or read from default config file
-    function __construct($in_url = NULL)
->>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
+    protected function __construct($in_url = NULL)
     {
       //$this->serverURL = $inURL;
       if ( empty($in_url)){
@@ -487,14 +480,9 @@ class TumServer extends ServerClass
           {
             $this->serverURL = $this->config->PRO->fingate;
           }
-<<<<<<< HEAD
           else
             throw new Exception("Invalid input mode");
-            
-=======
-          echo  $this->serverURL."\n";
           return true;
->>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
         }else
         {
           echo "No configuration is set!";
@@ -502,12 +490,8 @@ class TumServer extends ServerClass
           return false;
         }
       }else{
-<<<<<<< HEAD
         echo "Input mode is not valid!\n";
-=======
-        echo "Input need to be a boolean";
         return false;
->>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
       }
 
       echo "Server set to $this->serverURL\n";
@@ -549,14 +533,6 @@ class TumServer extends ServerClass
         //Generate a full url with server address and API version
         //info
           $url = $this->serverURL . $in_cmd['url'];
-<<<<<<< HEAD
-          //echo $url."\n";
-          //echo $temp_cmd."\n";
-=======
-
-          echo "Submit to: ".$url."\n";
-          var_dump($in_cmd['params']);
->>>>>>> 6442f8c1a6f586d49866cc6514bbce048df35520
 
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
