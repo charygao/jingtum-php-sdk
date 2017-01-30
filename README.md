@@ -15,7 +15,9 @@ $sudo apt-get install php5-curl
 
 ECDSA文件需要(GNU Multiple Precision (GMP) Arithmetic Library）.
 否则会出现以下错误
+```
 'GMP extension seems not to be installed' in /PHP-SDK/lib/ECDSA.php:11
+```
 
 在Ubuntu下，使用
 ```
@@ -38,12 +40,16 @@ PHP SDK提供了回调函数（callback）。
 首先保证系统安装了composer。如果没有，则需要安装Composer工具，具体可以参考 
 [Composer](https://getcomposer.org/)
 的说明。
+
+```
 curl -sS https://getcomposer.org/installer | php
+```
 
 在当前目录下的composer.json中加入PHP SDK的程序信息，如：
+
 ```
      "require": {
-       "jingtum/jingtum-php-sdk": "1.0.2"
+       "jingtum/jingtum-php-sdk": "dev-master"
      }
 ```
 
