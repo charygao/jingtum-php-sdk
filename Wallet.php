@@ -397,12 +397,25 @@ class Wallet extends AccountClass
      * @return multitype:
      * 返回当前账号的支付列表
      */
-    public function getPaymentList()
+    public function getPaymentList($in_options = '')
     {
-        $cmd['method'] = 'GET';
+
+      //build the url options
+      if ( ! empty($in_options) )
+      {
+          //parse the options into string
+          $parm_str = SnsNetwork::makeQueryString($in_options);
+          //Attach to the end of the URL
+          //
+          $cmd['url'] = str_replace("{0}",$this->address, PAYMENTS)
+            .'?'.$parm_str;
+      }
+      else
         $cmd['url'] = str_replace("{0}",$this->address, PAYMENTS);
+
+        $cmd['method'] = 'GET';
         $cmd['params'] = '';
-        
+      
         if ( is_object($this->api_server))
            return $this->api_server->submitRequest($cmd,
              $this->address, $this->secret);

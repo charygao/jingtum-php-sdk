@@ -35,7 +35,7 @@ $brew install homebrew/php/php55-gmp
 
 PHP SDK提供了回调函数（callback）。
 
-##安装PHP SDK
+## 安装PHP SDK
 
 首先保证系统安装了composer。如果没有，则需要安装Composer工具，具体可以参考 
 [Composer](https://getcomposer.org/)
@@ -59,71 +59,109 @@ php composer.phar install
 ```
 
 
-
-## 文件说明
-
-### 源程序文件说明
-
-AccountClass.php   - Base class for Wallet and FinGate. 
-
-FinGate.php        - FinGate class and functions. 
-
-OperationClass.php       - Base class for Payment, Order and other Operations. 
-
-OrderOperation.php       - Submit order operation.
-
-PaymentOperation.php     - Make payment operation.
-
-CancelOrderOperation.php - Cancel the order operation. 
-
-Server.php         - Basic server, API server, Tum server and Websocket server.
-
-Tum.php            - Tum, Amount, Balance classes.
-
-Wallet.php         - Wallet class and functions.
-
-###配置文件 
-
-composer.json      - composer config file for package installation. 
-
-composer.lock      - composer lock file for package installation.
-
-config.json        - Jingtum server configurations.
-
-### 所需库文件
-
-lib/
-
-ConfigUtil.php     - Configurations read in and write out.
-
-Constants.php      - Constants used in the SDK.
-
-DataCheck.php      - Data functions to check if the data type is right.
-
-ECDSA.php          - Encrypted functions.
-
-SignUtil.php       - Build Jingtum signature.
-
-SnsNetwork.php     - Functions handling HTTP requests.
-
-### 示例文件说明
-
-examples/
-
-test_data.json           - Test data used in the test program, only used in the development server.
-
-order_examples.php       - Order submit and check the status.
-
-payment_examples.php     - Create wallet, active it and use it to make a payment. Also use two test accounts for sending payments in SWT and currency.
-
-transaction_examples.php - Show how to get transaction information.
-
-tum_examples.php         -  Issue custom Tum and query the Tum status.
-
 ## 程序示例
 
-To run the examples, install the necessary packages, copy the example files and run:
+### 产生一组新的井通帐号
 
 ```php
-php examples/payment_examples.php
+	//Set the FinGate instance
+	$fin_gate = FinGate::getInstance();
+
+	//Set the work mode
+	$fin_gate->setMode(FinGate::DEVELOPMENT);
+
+	//Set up the FinGate account 
+	$fin_gate->setAccount('sha4eGoQu......V3YQ4');
+
+	//Create the wallet from FinGate
+	$wallet1 = $fin_gate->createWallet();
+
+	//active the wallet
+	$fin_gate->activeWallet($wallet1->getAddress(), 'call_back_func');
+
+```
+
+### 查询帐号的余额信息
+```php
+	//Set the FinGate instance
+	$fin_gate = FinGate::getInstance();
+
+	//Set the work mode
+	$fin_gate->setMode(FinGate::DEVELOPMENT);
+```
+
+### 使用帐号进行支付
+
+```php
+	//Set the FinGate instance
+	$fin_gate = FinGate::getInstance();
+
+	//Set the work mode
+	$fin_gate->setMode(FinGate::DEVELOPMENT);
+
+	//Setup two wallets for testing
+	$wallet2 = new Wallet($test_wallet2->secret, $test_wallet2->address);
+
+	$wallet3 = new Wallet($test_wallet3->secret, $test_wallet3->address);
+
+	//A payment obj for testing
+	$op = new PaymentOperation($wallet2);
+
+	//Create the payment amount
+	$pay_value = 0.01;
+	$amt1 = new Amount($pay_value, 'SWT', '');
+
+	//Set the destination address
+	$op->setDestAddress($wallet3->getAddress());
+
+	//Set the amount to pay
+	$op->setAmount($amt1);
+
+	//Optional settings
+	$client_id = "JTtest".time();
+	$op->setClientID($client_id);//optional, if not provided, SDK will generate an internal one
+	$op->setMemo("SWT PAYMENT for testing".$client_id);//memo used in the payment
+	$op->setValidate(false);//setup the syn mode, default is true
+
+	$op->submit('call_back_func');
+
+```
+
+### 生成挂单
+
+```php
+	//Set the FinGate instance
+	$fin_gate = FinGate::getInstance();
+
+	//Set the work mode
+	$fin_gate->setMode(FinGate::DEVELOPMENT);
+
+    $wallet1 = new Wallet('snwjtucx9......MbVz8hFiK9');
+
+    $op = new OrderOperation($wallet1);
+    $op->setType($op->SELL);
+    $op->setPair("SWT/CNY:janxMdr...GewMMeHa9f");
+    $op->setAmount(1000.00 );
+    $op->setValidate(true);
+
+    $op->submit('call_back_func');
+```
+
+
+### 取消挂单
+
+```php
+	//Set the FinGate instance
+	$fin_gate = FinGate::getInstance();
+
+	//Set the work mode
+	$fin_gate->setMode(FinGate::DEVELOPMENT);
+
+    $wallet1 = new Wallet('snwjtucx9......MbVz8hFiK9');
+    $op = new CancelOrderOperation($wallet);
+
+    $op->setOrderNum(54);
+    $op->setValidate('true');
+
+    $op->submit('call_back_func');
 ```
