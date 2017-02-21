@@ -129,7 +129,7 @@ function cancel_call_back_func($res)
 {
   echo 'Call back function for canceling'."\n";
   if($res['success'] == true){
-    echo "submit successfully\n";
+    echo "Cancel Order submited successfully\n";
     var_dump($res);
     //echo "seq".$res['sequence']." is ".$res['state']."\n";
   }
@@ -137,6 +137,26 @@ function cancel_call_back_func($res)
     var_dump($res);
 }
 
+//Example call back function for getOrderBook
+function order_book_call_back_func($res)
+{
+  echo 'In the call back function'."\n";
+  if($res['success'] == true){
+    $num = count($res['bids']);
+    echo "Order book bids:".$num."\n";
+        echo "Order book asks:".count($res['asks'])."\n";
+      for ( $i = 0; $i < $num; $i ++){
+     echo "Bids ".$res['bids'][$i]['order_maker'].":".$res['bids'][$i]['price']." Amount ".$res['bids'][$i]['total']."\n";
+     //   var_dump($res['bids'][$i]);
+     }
+      for ( $i = 0; $i < count($res['asks']); $i ++){
+     echo "Asks ".$res['bids'][$i]['order_maker'].":".$res['asks'][$i]['price']." Amount ".$res['asks'][$i]['total']."\n";
+     //   var_dump($res['bids'][$i]);
+     }
+  }
+  else
+    var_dump($res);
+}
 /************************************************/
 // Main test program
 //Read in the test configuration and data
@@ -157,7 +177,7 @@ $test_cny = $test_data->DEV->CNYAmount1;
 
 
 //Set the FinGate using info from the configuration file.
-print_r("=============Set FinGate mode==============\n");
+echo "=============Set FinGate mode==============\n";
 $fin_gate = FinGate::getInstance();
 
 //Set up the FinGate account using secret
@@ -166,18 +186,24 @@ $fin_gate->setAccount($fg1->secret, $fg1->address);
 //Set the test environment
 $fin_gate->setMode(FinGate::DEVELOPMENT);
 
+echo "=============display the order book ==============\n";
+$tum_pair = 'SWT'.'/'.$test_cny->currency.':'.$test_cny->issuer;
+//$fin_gate->getOrderBook($tum_pair, 'order_book_call_back_func');
+
 
 echo "Setup wallet 2 and 3 for testing\n";
 $wallet2 = new Wallet($test_wallet2->secret, $test_wallet2->address);
-$ret = $wallet2->getTransactionList();
+$ret = $wallet2->getOrderList();
+var_dump($ret);
 
-checkOrderStatus($ret);
+// $ret = $wallet2->getTransactionList();
+// checkOrderStatus($ret);
 
 $wallet3 = new Wallet($test_wallet3->secret, $test_wallet3->address);
-$ret = $wallet3->getTransactionList();
-checkOrderStatus($ret);
+// $ret = $wallet3->getTransactionList();
+// checkOrderStatus($ret);
 
-return;
+
 
 //1 SWT with 10 CNY
 //create the two Amount object
@@ -198,13 +224,13 @@ $req2->setAmount($pay_amount);
 $req2->setPair($tum_pair);
 
 
-goto order_test;
+//goto order_test;
 
 cancel_order_test:
 echo "=======Submit one order===================\n";
 //Submit order
 $ret = $req2->submit();
-
+sleep(5);
 
 if ( $ret['success'] == true ){
   
@@ -212,8 +238,15 @@ if ( $ret['success'] == true ){
   echo "Order submitted successfully\n";
   echo "HASH ID:".$ret['hash']."\n";
 
-  $res = $wallet2->getOrderList();
-  displayOrderList($res);
+  // $res = $wallet2->getOrderList();
+  // displayOrderList($res);
+  echo "=======Check the order===================\n";
+$res = $wallet2->getOrder($ret['hash']);
+var_dump($res);
+
+echo "=======Check the order TX===================\n";
+$res = $wallet2->getTransaction($ret['hash']);
+var_dump($res);
 
   $order_id = $ret['sequence'];
 
@@ -235,6 +268,10 @@ if ( ! empty($order_id) ){
   echo "Failed to submit the order!\n";
   print_r(json_encode($ret));
 }  
+
+//Transaction list
+checkOrderStatus($wallet2->getTransactionList());
+
 
 return;
 
@@ -266,6 +303,8 @@ sleep(10);
 //finished.
 $ret = $wallet3->getTransactionList();
 checkOrderStatus($ret);
+
+
 
 return;//end of the program
 ?>

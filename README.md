@@ -58,6 +58,10 @@ curl -sS https://getcomposer.org/installer | php
 php composer.phar install
 ```
 
+2017/02/15
+加入了phpunit的package，在MAC上使用了PHPUnit 4.8.35
+mv phpunit.phar /usr/local/bin/phpunit
+
 
 ## 程序示例
 

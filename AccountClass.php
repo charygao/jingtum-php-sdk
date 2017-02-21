@@ -55,6 +55,8 @@ class AccountClass
       $adr = $ecdsa->getAddress();
 
       //Generate the address from the secret using ECDSA class functions
+      echo "Account class: $in_address .vs. $adr \n";
+
       if ( empty($in_address) )
       {
         //if the input address is empty, use generated address

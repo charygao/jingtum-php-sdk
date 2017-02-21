@@ -52,9 +52,9 @@ require_once './lib/ECDSA.php';
 require_once './lib/SnsNetwork.php';
 require_once './lib/ConfigUtil.php';
 require_once './lib/Constants.php';
+require_once './lib/DataCheck.php';
 require_once 'AccountClass.php';
 require_once 'Server.php';
-//require_once 'Wallet.php';
 
 /**
  * require PHP install the cURL extension.
@@ -84,11 +84,7 @@ class FinGate extends AccountClass
     private $activation_amount = MIN_ACT_AMOUNT;
 
     //api and tum_server
-    private static $instance = NULL;
-
-    //Tum server (for issuing Tum) and API server (active wallets)
     private $tum_server = NULL;
-
     private $api_server = NULL;
 
     //Variables used to issue custom Tum
@@ -128,6 +124,7 @@ class FinGate extends AccountClass
       $this->tum_server = TumServer::getInstance();
       $this->api_server = APIServer::getInstance();
 
+//      echo $this->api_server->getServerURL();
 
     }
 
@@ -175,7 +172,6 @@ class FinGate extends AccountClass
           return true;
         }
         else{
-          throw new Exception('Input should be a Server object');
           return false;
         }
 
@@ -192,7 +188,6 @@ class FinGate extends AccountClass
           return true;
         }
         else{
-          throw new Exception('Input should be a Server object');
           return false;
         }
 
@@ -304,12 +299,9 @@ class FinGate extends AccountClass
     }
     
      /**
-     * 设置工作模式
+     * 设置测试模式
      * Set the API/Tum Server to 
-     * the correct work settings
-     * 0 - 生产模式
-     * 1 - 测试模式
-     * 
+     * the correct settings
      */
     public function setMode($in_mode)
     {
@@ -528,6 +520,54 @@ class FinGate extends AccountClass
         }
     }
 
+    /**
+     * getOrderBook 
+     * Change the return to
+     * @param $dest_address wallet address to active            
+     * @return multitype:
+    */
+    public function getOrderBook($in_str, $call_back_func = NULL)
+    {
+        //decode the in_pair to base and counter
+        try {
+          if ( is_string($in_str)) {
+          $pair = explode('/', $in_str);
 
+          if (count($pair) != 2)
+            throw new Exception("Input should have a pair", 1);
+          
+            //echo "set taker pays $pair[0]\n";
+
+            $base = getTumfromPair($pair[0]);
+            $counter = getTumfromPair($pair[1]);
+          $str = str_replace(':', '+',$in_str);
+
+
+          $cmd['method'] = 'GET';
+          $cmd['url'] = str_replace("{0}",$this->address, ORDER_BOOK).$str;
+          //.$base['currency']. '+'.
+          //$base['counterparty'].'/'. $counter['currency']. '+'.$counter['counterparty'];
+          $cmd['params'] = '';
+        
+          if ( is_object($this->api_server))
+          {
+
+            //use call back function if any
+            if ($call_back_func)
+            {
+              $call_back_func(convertOrderBook($this->api_server->submitRequest($cmd, $this->address, $this->secret)));
+            }
+            else
+              return convertOrderBook(convertOrderBook($this->api_server->submitRequest($cmd, $this->address, $this->secret)));//$this->api_server->submitRequest($cmd, $this->address, $this->secret);
+          }
+          else
+            throw new Exception('API Server is not ready!');
+          }else
+            throw new Exception('Input is not a String!');
+        } catch (Exception $e) {
+            print "Cannot get the order book:".$e->getMessage();
+        }
+
+    }
 }
 ?>

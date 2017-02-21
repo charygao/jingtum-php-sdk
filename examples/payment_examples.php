@@ -142,7 +142,8 @@ $payreq = new PaymentOperation($wallet2);
 $pay_value = 0.01;
 
 //debug lines
-goto payment_list;
+
+//goto payment_list;
 goto simple_payment_test;
 //goto path_payment_test;
 
@@ -184,6 +185,9 @@ simple_payment_test:
 //This need to create a wallet class
 
 $res = $wallet2->getBalance();
+
+var_dump($res);
+return;
 //Should notice the change in the balances
 $des_val0 = displayBalances($res, 0);
 

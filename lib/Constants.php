@@ -34,7 +34,7 @@ define('BALANCES', '/accounts/{0}/balances/');
 define('PAYMENT_PATHS', '/accounts/{0}/payments/paths/');
 define('PAYMENTS', '/accounts/{0}/payments/');
 define('ORDERS', '/accounts/{0}/orders/');
-define('ORDERBOOK', '/accounts/{0}/order_book/');
+define('ORDER_BOOK', '/accounts/{0}/order_book/');
 define('TRUST_LINES', '/accounts/{0}/trustlines/');
 define('RELATIONS', '/accounts/{0}/relations/');
 define('CORELATIONS', '/accounts/{0}/co-relations/');

@@ -29,6 +29,7 @@ namespace JingtumSDK;
 use JingtumSDK\OperationClass;
 
 require_once('OperationClass.php');
+require_once './lib/DataCheck.php';
 
 /**
  * 如果您的 PHP 没有安装 cURL 扩展，请先安装
@@ -98,7 +99,7 @@ class OrderOperation extends OperationClass
     //input string should have the format as
     //tumCode+TumIssuer
 
-    public function setTumFromPairStr($in_str)
+    public function getTumfromPair($in_str)
     {
       $pair = explode(':',$in_str);
 
@@ -133,16 +134,16 @@ class OrderOperation extends OperationClass
           
           echo "set taker pays $pair[0]\n";
 
-          $this->tum0 = $this->setTumFromPairStr($pair[0]);
+          $this->tum0 = $this->getTumfromPair($pair[0]);
 
-          $this->tum1 = $this->setTumFromPairStr($pair[1]);
+          $this->tum1 = $this->getTumfromPair($pair[1]);
 
           //var_dump($this->tum0);
           //var_dump($this->tum1);
 
        }
        else{
-         printf("Errors in the input Amount %s\n",$in_value);
+         printf("Errors in the input tum pair %s\n",$in_str);
          return false;
        }
        //may need to check if the value is boolean or not

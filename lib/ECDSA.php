@@ -55,6 +55,7 @@ class ECDSA
         if (! empty($secret)) {
             $key = $this->base58_decode($secret);
             $this->private_gen = $this->generateRandom256BitsHexaString(substr($key, 2, 32));
+            
         }
     }
 
@@ -188,8 +189,11 @@ class ECDSA
      */
     public function hash160($data)
     {
+        //printf("data: %s\n", bin2hex($data));
         $res1 = hash('sha256', $data);
         $res2 = hash('ripemd160', hex2bin($res1));
+        //printf("res1: %s\n", $res1);
+        //printf("res2: %s\n", $res2);
 
         return hash('ripemd160', hex2bin(hash('sha256', $data)));
     }
@@ -398,6 +402,7 @@ class ECDSA
         // SLOPE = (pt1Y - pt2Y)/( pt1X - pt2X )
         // Equals (pt1Y - pt2Y) * ( pt1X - pt2X )^-1
         $slope = gmp_mod(gmp_mul(gmp_sub($pt1['y'], $pt2['y']), gmp_invert(gmp_sub($pt1['x'], $pt2['x']), $p)), $p);
+        //printf( "slope: %s\n", gmp_strval($slope, 16));
         
         // nPtX = slope^2 - ptX1 - ptX2
         $nPt = [];
@@ -424,6 +429,7 @@ class ECDSA
      */
     public function mulPoint($k, Array $pG, $base = null)
     {
+        //printf("mulpoint:[%s] with %s %s\n",$k, gmp_strval($pG['x'],16), gmp_strval($pG['y'], 16));
         // in order to calculate k*G
         if ($base === 16 || $base === null || is_resource($base))
             $k = gmp_init($k, 16);
@@ -652,6 +658,8 @@ class ECDSA
         ], $base);
         $pubKey['x'] = gmp_strval($pubKey['x'], 16);
         $pubKey['y'] = gmp_strval($pubKey['y'], 16);
+        //printf("pubx:%s\n",$pubKey['x'] );
+        //printf("puby:%s\n",$pubKey['y'] );
         
         while (strlen($pubKey['x']) < 64) {
             $pubKey['x'] = '0' . $pubKey['x'];
@@ -696,6 +704,7 @@ class ECDSA
 
         if (empty($pubKeyPts))
         {
+            //printf("get pubkeypoints from secret:%s\n", $secret);
             $pubKeyPts = $this->getPubKeyPoints($secret, $base);
         }
 //got cosntants???
@@ -730,6 +739,7 @@ class ECDSA
             }
         } else {
             if ($compressed === true) {
+                //printf("3\n");
                 $address = $this->getPubKey();
             } else {
                 $address = $this->getUncompressedPubKey();
@@ -737,12 +747,12 @@ class ECDSA
         }
 
 
+        //printf("get pubkey: %s\n", $address);
         $address = $this->getNetworkPrefix() . $this->hash160(hex2bin($address));
         // checksum
         $addresshash = $address . substr($this->hash256(hex2bin($address)), 0, 8);
 
         $address = $this->base58_encode($addresshash);
-
         if ($this->validateAddress($address))
             return $address;
         else
@@ -804,9 +814,12 @@ class ECDSA
                 $seq += 1;
             } while (gmp_cmp(gmp_init($key, 16), gmp_sub($this->n, gmp_init(1, 10))) === 1);
 
-            //printf("private key : %s\n", gmp_strval(gmp_mod(gmp_add(gmp_init($key, 16), gmp_init($private_gen, 16)), $this->n), 16));
             $this->k = gmp_mod(gmp_add(gmp_init($key, 16), gmp_init($private_gen, 16)), $this->n) . '';
         }
+//        else
+//          printf("key value is set[%s]\n",$this->k);
+        
+        //var_dump(gmp_strval($this->k, 16));
 
 
         return $this->k;
@@ -816,18 +829,17 @@ class ECDSA
     public function getPubKey()
     {
         $priv = $this->getPrivateKey();
+        //printf("getPubKey() privkey: [%s]\n", $priv );
+        //return $this->computePubKey($priv, 16);
 
         $private_gen = $this->private_gen;
         
         $public_gen = $this->computePubKey($private_gen);
 
-
         $seq = 0;
         
         do {
 
-            //$pubgenrev = strrev($public_gen);
-            
             $data = hex2bin($public_gen) . hex2bin(sprintf("%08x", 0)) . hex2bin(sprintf("%08x", $seq));
 
             $key = $this->halfhash512($data);
@@ -848,6 +860,7 @@ class ECDSA
         $pubkey = $this->getDerPubKeyWithPubKeyPoints(['x'=>gmp_strval($resultingPt['x'],16), 'y'=>gmp_strval($resultingPt['y'],16)]);
 
         return $pubkey;
+
 
     }
 
@@ -899,8 +912,12 @@ class ECDSA
     {
         $key = $this->base58_decode($wif, true);
 
+        //printf("base58decode : %s\n", $key);
+   
         $length = strlen($key);
         $checksum = $this->hash256(hex2bin(substr($key, 0, $length - 8)));
+
+        //printf("checksum : %s\n", $checksum);
 
         if (substr($checksum, 0, 8) === substr($key, $length - 8, 8))
             return true;

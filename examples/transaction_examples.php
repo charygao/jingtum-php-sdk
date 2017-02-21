@@ -76,6 +76,7 @@ echo "======Get Transactions======\n";
 $res = $wt0->getTransactionList();
 displayTransactionList($res);
 
+return;
 //Can use options to filter out the transaction list
 /*参数类型说明
 source_account String 交易方地址

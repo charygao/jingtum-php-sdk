@@ -199,11 +199,13 @@ class APIServer extends ServerClass
             $params['t'] = $res['t'];
         }
 
+       echo $url."\n";
+        //var_dump($in_cmd['params']);
+
         //Submit the parameters to the SERVER
-        $ret = SnsNetwork::api($url, 
+        return SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 
           $in_cmd['method']);
-        return $ret;
         
     }
 
@@ -220,8 +222,7 @@ class APIServer extends ServerClass
     {
       //API /v1/，GET method
       $url = $this->serverURL . '/' . $this->version . '/connected';
-      $ret = SnsNetwork::api($url, '', 'GET');
-      return $ret;
+      return SnsNetwork::api($url, '', 'GET');
     }
 
     //Return a pair of wallet from the SERVER
@@ -427,15 +428,12 @@ class WebSocketServer extends ServerClass
 class TumServer extends ServerClass
 { 
     //Tum server
-
-    //Input config info
-    private $config = NULL;
+    //Tum version
     
     //Declare the instance 
     private static $instance = NULL;
 
     //reserved for DATA server URL
-    //or read from default config file
     protected function __construct($in_url = NULL)
     {
       //$this->serverURL = $inURL;
@@ -453,7 +451,7 @@ class TumServer extends ServerClass
           parent::__construct($this->config->PRO->fingate);
 
           } catch (Exception $e) {
-            echo "Error in setup Tum server from the config\n";
+            echo "Error in setup WebSocket server from the config\n";
           }
 
         }else
@@ -482,16 +480,12 @@ class TumServer extends ServerClass
           }
           else
             throw new Exception("Invalid input mode");
-          return true;
+            
         }else
-        {
           echo "No configuration is set!";
           //reload the config file
-          return false;
-        }
       }else{
         echo "Input mode is not valid!\n";
-        return false;
       }
 
       echo "Server set to $this->serverURL\n";
@@ -529,10 +523,11 @@ class TumServer extends ServerClass
         $temp_cmd = strtoupper(trim($in_cmd['method']));
         if ( $temp_cmd == 'POST' || $temp_cmd == 'GET' 
             || $temp_cmd == 'DELETE' ){
-
         //Generate a full url with server address and API version
         //info
           $url = $this->serverURL . $in_cmd['url'];
+          //echo $url."\n";
+          //echo $temp_cmd."\n";
 
           $ret = SnsNetwork::api($url, 
           json_encode($in_cmd['params']), 

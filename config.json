@@ -1,1 +1,1 @@
-{"DEV":{"api":"https:\/\/tapi.jingtum.com","api_version":"v1","ws":"wss:\/\/tapi.jingtum.com:5443","fingate":"http:\/\/tfingate.jingtum.com"},"PRO":{"api":"https:\/\/api.jingtum.com","api_version":"v1","ws":"wss:\/\/api.jingtum.com:5443","fingate":"http:\/\/fingate.jingtum.com"}}
+{"DEV":{"api":"https:\/\/tapi.jingtum.com","api_version":"v1","ws":"wss:\/\/tapi.jingtum.com:5443","fingate":"https:\/\/tfingate.jingtum.com"},"PRO":{"api":"https:\/\/api.jingtum.com","api_version":"v1","ws":"wss:\/\/api.jingtum.com:5443","fingate":"https:\/\/fingate.jingtum.com"}}

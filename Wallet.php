@@ -155,8 +155,8 @@ class Wallet extends AccountClass
         $cmd['params'] = '';
 
         if ( is_object($this->api_server))
-           return $this->api_server->submitRequest($cmd,
-             $this->address, $this->secret);
+           return convertOrder($this->api_server->submitRequest($cmd,
+             $this->address, $this->secret));
         else
            throw new Exception('API Server is not ready!');
     }
@@ -168,16 +168,17 @@ class Wallet extends AccountClass
      * 需要检测输入参数的格式。
      * base (code+counterparty) 
      * counter
+     * move to FinGate
      */
-    public function getOrderBook($base, $counter)
+    private function getOrderBook($base, $counter)
     {
         $cmd['method'] = 'GET';
         $cmd['url'] = str_replace("{0}",$this->address, ORDERS). '/' .$base. '/' .$counter;
         $cmd['params'] = '';
         
         if ( is_object($this->api_server))
-           return $this->api_server->submitRequest($cmd,
-             $this->address, $this->secret);
+           return convertOrderBook($this->api_server->submitRequest($cmd,
+             $this->address, $this->secret));
         else
            throw new Exception('API Server is not ready!');
     }
@@ -194,8 +195,8 @@ class Wallet extends AccountClass
         $cmd['params'] = '';
         
         if ( is_object($this->api_server))
-           return $this->api_server->submitRequest($cmd,
-             $this->address, $this->secret);
+           return convertOrderList($this->api_server->submitRequest($cmd,
+             $this->address, $this->secret));
         else
            throw new Exception('API Server is not ready!');
     }
@@ -231,8 +232,8 @@ class Wallet extends AccountClass
         $cmd['params'] = '';
         
         if ( is_object($this->api_server))
-           return $this->api_server->submitRequest($cmd,
-             $this->address, $this->secret);
+           return convertTransaction($this->api_server->submitRequest($cmd,
+             $this->address, $this->secret));
         else
            throw new Exception('API Server is not ready!');
     }
@@ -254,18 +255,22 @@ class Wallet extends AccountClass
     
     /**
      * Add the options
+     * Changed the counter_party to issuer
+     * in the return.
      * 
      * @param string $currency            
      * @param string $counter_party            
      * @return multitype:
      */
-    public function getBalance($currency = '', $counter_party = null)
+    public function getBalance($currency = null, $issuer = null)
     {
       $cmd['method'] = 'GET';
       //$cmd['url'] = str_replace("{0}",$this->address, BALANCES);
+      if ( $currency != null )
+        $in_options['currency'] = $currency;
 
-      $in_options['currency'] = $currency;
-      $in_options['counter_party'] = $counter_party;
+      if ($issuer != null)
+        $in_options['counter_party'] = $issuer;
       
       //build the url options
       if ( ! empty($in_options) )
@@ -283,9 +288,20 @@ class Wallet extends AccountClass
 
       $cmd['params'] = '';
 
-      if ( is_object($this->api_server))
-        return $this->api_server->submitRequest($cmd, 
+      if ( is_object($this->api_server)){
+        //Send out the request 
+        //and change the parameters.
+
+        $ret = $this->api_server->submitRequest($cmd, 
           $this->address, $this->secret); 
+
+        if ( $ret['success'] == true){
+          echo "Get balnces done\nConverting...\n";
+          return convertBalances($ret);
+
+        }else
+          return $ret;
+      }
       else
         throw new Exception('API Server is not ready!');
     }
