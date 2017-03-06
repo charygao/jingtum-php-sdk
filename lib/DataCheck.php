@@ -132,7 +132,32 @@ function getTumfromPair($in_str)
   return $out_tum;
 }
 
+/*
+ * Return a Tum str using input array
+ * [currency]
+ * [counterparty]
+ * Output:
+ * currency:issuer
+*/
+function getPairFromArray($in_array)
+{
 
+  //If the input has two part, 
+  //assume one is the issuer
+  try {
+  if ( $in_array['currency'] == 'SWT'){
+    $out_pair = $in_array['currency'];
+  }
+  else
+  {
+    $out_pair = $in_array['currency'].":".$in_array['counterparty'];
+  }
+  }catch (Exception $e){
+    echo "Error ".$e->getMessage()."\n";
+  }
+  
+  return $out_pair;
+}
 /*
  * Return an Array of in_balance_array
  *
@@ -146,11 +171,12 @@ $new_ret = array();
             # code...
             //Find the balances
             if ($key == 'balances'){
-              echo "Balance size\n";
-              echo count($key);
-              echo "------------\n";
+              // echo "Balance size\n";
+              // echo count($key);
+              // echo "------------\n";
               $new_balances = array();
               $new_bal=array();
+
               foreach ($value as $balkey => $balvalue) {
                               $new_bal['currency'] = $balvalue['currency'];
               $new_bal['value'] = $balvalue['value'];
@@ -384,14 +410,16 @@ function convertOrder($in_ret)
                 //base currency is taker_gets
                 $new_order['price'] = $value['taker_pays']['value']/$value['taker_gets']['value'];
                 $new_order['amount'] = $value['taker_gets']['value'];
-                $new_order['pair'] = $value['taker_gets']['currency'].":".$value['taker_gets']['counterparty']
-                ."/".$value['taker_pays']['currency'].":".$value['taker_pays']['counterparty'];
+                // $new_order['pair'] = getPairFromArray($value['taker_gets']['currency'].":".$value['taker_gets']['counterparty']
+                // ."/".$value['taker_pays']['currency'].":".$value['taker_pays']['counterparty'];
+                $new_order['pair'] = getPairFromArray($value['taker_gets'])."/".getPairFromArray($value['taker_pays']);
               }elseif ($new_order['type'] == 'buy'){
                 //base currency is taker_pays
                 $new_order['price'] = $value['taker_gets']['value']/$value['taker_pays']['value'];
                 $new_order['amount'] = $value['taker_pays']['value'];
-                $new_order['pair'] = $value['taker_pays']['currency'].":".$value['taker_pays']['counterparty']
-                ."/".$value['taker_gets']['currency'].":".$value['taker_gets']['counterparty'];
+                // $new_order['pair'] = $value['taker_pays']['currency'].":".$value['taker_pays']['counterparty']
+                // ."/".$invalue['taker_gets']['currency'].":".$value['taker_gets']['counterparty'];
+                $new_order['pair'] = getPairFromArray($value['taker_gets'])."/".getPairFromArray($value['taker_pays']);
               }else{
                 echo "Order type error".$value['type'];
               }
@@ -405,49 +433,6 @@ function convertOrder($in_ret)
 
 }
 
-function convertCancelOrder($in_ret)
-{
-          echo "processing cancel Order\n";
-          $new_ret = array();
-//Copy the items in the info and converted the
-//bids and asks array
-          foreach ($in_ret as $key => $value) {
-            # code...
-            //Find the order array and convert the format
-            if ($key == 'order'){
-              echo "convert order\n";
-              echo count($key);
-              echo "------------\n";
-              $new_order=array();
-                              
-              $new_order['sequence'] = $value['sequence'];
-              $new_order['type'] = $value['type'];
-              //compute the base currency amount
-              //and price
-              if ($new_order['type'] == 'sell'){
-                //base currency is taker_gets
-                $new_order['price'] = $value['taker_pays']['value']/$value['taker_gets']['value'];
-                $new_order['amount'] = $value['taker_gets']['value'];
-                $new_order['pair'] = $value['taker_gets']['currency'].":".$value['taker_gets']['counterparty']
-                ."/".$value['taker_pays']['currency'].":".$value['taker_pays']['counterparty'];
-              }elseif ($new_order['type'] == 'buy'){
-                //base currency is taker_pays
-                $new_order['price'] = $value['taker_gets']['value']/$value['taker_pays']['value'];
-                $new_order['amount'] = $value['taker_pays']['value'];
-                $new_order['pair'] = $value['taker_pays']['currency'].":".$value['taker_pays']['counterparty']
-                ."/".$value['taker_gets']['currency'].":".$value['taker_gets']['counterparty'];
-              }else{
-                echo "Order type error".$value['type'];
-              }
-              $new_ret[$key] = $new_order;
-
-            }else{
-             $new_ret[$key] = $value;
-            }
-          }
-          return $new_ret;
-
-}
 /*
  * Convert the order array to the new format
 
@@ -486,14 +471,17 @@ $new_ret = array();
                 //base currency is taker_gets
                 $new_order['price'] = $invalue['taker_pays']['value']/$invalue['taker_gets']['value'];
                 $new_order['amount'] = $invalue['taker_gets']['value'];
-                $new_order['pair'] = $invalue['taker_gets']['currency'].":".$invalue['taker_gets']['counterparty']
-                ."/".$invalue['taker_pays']['currency'].":".$invalue['taker_pays']['counterparty'];
+                // $new_order['pair'] = $invalue['taker_gets']['currency'].":".$invalue['taker_gets']['counterparty']
+                // ."/".$invalue['taker_pays']['currency'].":".$invalue['taker_pays']['counterparty'];
+                $new_order['pair'] = getPairFromArray($invalue['taker_gets'])."/".getPairFromArray($invalue['taker_pays']);
+
               }elseif ($new_order['type'] == 'buy'){
                 //base currency is taker_pays
                 $new_order['price'] = $invalue['taker_gets']['value']/$invalue['taker_pays']['value'];
                 $new_order['amount'] = $invalue['taker_pays']['value'];
-                $new_order['pair'] = $invalue['taker_pays']['currency'].":".$invalue['taker_pays']['counterparty']
-                ."/".$invalue['taker_gets']['currency'].":".$invalue['taker_gets']['counterparty'];
+                // $new_order['pair'] = $invalue['taker_pays']['currency'].":".$invalue['taker_pays']['counterparty']
+                // ."/".$invalue['taker_gets']['currency'].":".$invalue['taker_gets']['counterparty'];
+                  $new_order['pair'] = getPairFromArray($invalue['taker_pays'])."/".getPairFromArray($invalue['taker_gets']);
               }else{
                 echo "Order type error".$invalue['type'];
               }

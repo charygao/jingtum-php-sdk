@@ -86,6 +86,7 @@ class FinGate extends AccountClass
     //api and tum_server
     private $tum_server = NULL;
     private $api_server = NULL;
+    private $websocket_server = NULL;
 
     //Variables used to issue custom Tum
     private $token = '';
@@ -123,8 +124,7 @@ class FinGate extends AccountClass
       //set Tum server
       $this->tum_server = TumServer::getInstance();
       $this->api_server = APIServer::getInstance();
-
-//      echo $this->api_server->getServerURL();
+      $this->websocket_server = WebSocketServer::getInstance();
 
     }
 
@@ -161,41 +161,21 @@ class FinGate extends AccountClass
 
     }
 
-    /**
-     * Set API Server, reserved for future usage. 
-     */
-    private function setAPIserver($in_server)
-    {
-        //Init the Server class object
-        if ( is_object($in_server) ){
-          $this->api_server = $in_server;
-          return true;
-        }
-        else{
-          return false;
-        }
-
-    }
 
     /**
-     * Set Tum Server
-     */
-    private function setTumserver($in_server)
-    {
-        //Init the Server class object
-        if ( is_object($in_server) ){
-          $this->tum_server = $in_server;
-          return true;
-        }
-        else{
-          return false;
-        }
-
-    }
-
-     /**
      * This value is set in the configure file.
-     * Usually not less than 30 SWT.
+     * Should return the websocket server.
+     * @return the websocket server link
+     * 
+     */
+    public function getWebsocketServer()
+    {
+        return $this->websocket_server;
+    }
+    
+    /**
+     * This value is set in the configure file.
+     * Should not less than 20 SWT.
      * @return the ActivateAmount
      * 
      */
@@ -203,7 +183,7 @@ class FinGate extends AccountClass
     {
         return $this->activation_amount;
     }
-    
+
     //Return a uuid from the API SERVER
     //Change it to use prefix and UNIX time
     //Format as the follows:
@@ -308,6 +288,7 @@ class FinGate extends AccountClass
         //default mode is production = 0
         $this->api_server->setMode($in_mode);
         $this->tum_server->setMode($in_mode);
+        $this->websocket_server->setMode($in_mode);
    
     }
     

@@ -76,10 +76,10 @@ class CancelOrderOperation extends OperationClass
         //submit the command and return the results 
         if ($call_back_func)
         {
-          $call_back_func(convertCancelOrder($this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret));
+          $call_back_func($this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret));
         }
         else
-          return convertCancelOrder($this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret));
+          return $this->api_server->submitRequest($cmd, $this->src_address, $this->src_secret);
     }
     
 }//end 

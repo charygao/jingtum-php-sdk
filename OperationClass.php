@@ -27,7 +27,9 @@
  */
 namespace JingtumSDK;
 
+use JingtumSDK\lib\ECDSA;
 require_once './lib/Constants.php';
+require_once './lib/ECDSA.php';
 
 //base class
 abstract class OperationClass
@@ -62,13 +64,22 @@ abstract class OperationClass
     //Set the operation address
     public function setSrcAddress($in_address)
     {
-      $this->src_address = $in_address;
+      $ecdsa = new ECDSA();
+      if($ecdsa->validateAddress($in_address))
+        $this->src_address = $in_address;
+      else
+        throw new Exception('Invalid address!');
     }
 
     //Set the operation address' secret
     public function setSrcSecret($in_secret)
     {
        $this->src_secret = $in_secret;
+    }
+
+    //Return the source secret
+    public function getSrcSecret(){
+      return $this->src_secret;
     }
  
     //Changed from setSrcSecret

@@ -143,9 +143,9 @@ $pay_value = 0.01;
 
 //debug lines
 
-//goto payment_list;
+goto path_payment_test;
+// //goto payment_list;
 goto simple_payment_test;
-//goto path_payment_test;
 
 echo "======================================\n";
 echo "*\n* Create new wallet test program\n";
@@ -175,19 +175,17 @@ echo "Check Balance of the new wallet\n";
 $res = $wallet1->getBalance();
 $src_val0 = displayBalances($res, 0);
 
-
+simple_payment_test:
 echo "======================================\n";
 echo "*\n* Simple payment test program\n";
 echo "======================================\n";
 
-simple_payment_test:
+
 //payback the FinGate for testing
 //This need to create a wallet class
 
 $res = $wallet2->getBalance();
 
-var_dump($res);
-return;
 //Should notice the change in the balances
 $des_val0 = displayBalances($res, 0);
 
@@ -199,12 +197,12 @@ $payreq->setDestAddress($wallet3->getAddress());//required
 $payreq->setMemo("SWT PAYMENT".$client_id);
 $payreq->setAmount($amt1);
 $payreq->setClientID($client_id);//optional, if not provided, SDK will generate an internal one
-$payreq->setValidate(false);//optional, setup the syn mode, default is true
+//$payreq->setValidate(false);//optional, setup the syn mode, default is true
 
 //Submit the payment operation
 $payreq->submit('call_back_func');
 
-sleep(10);
+sleep(5);
 
 //Check the payment
 $res = $wallet2->getPayment($client_id);
@@ -259,7 +257,9 @@ if ( count($ret['payments']) > 0 ){
 echo "Find ".count($ret['payments'])." paths\n";
 //choose the 1st path
 $key = $ret['payments'][0]['key'];
-
+echo $key;
+echo "====================\n";
+return;
 
 //Set a path to the payment operation
 $payreq->setAmount($amt1->getAmount());

@@ -86,20 +86,24 @@ class Wallet extends AccountClass
     
    
 //settings
-    private $transfer_rate = '';
-    private $password_spent= '';
-    private $require_destination_tag= '';
-    private $require_authorization= '';
-    private $disallow_swt = '';
+    
+    //private $transaction_sequence= '';
     private $disable_master = '';
-    private $no_freeze= '';
-    private $global_freeze= '';
-    private $transaction_sequence= '';
-    private $email_hash= '';
-    private $wallet_locator= '';
-    private $wallet_size= '';
-    private $message_key= '';
+    private $disallow_swt = '';
     private $domain = '';
+    private $email_hash= '';
+    private $global_freeze= '';
+    private $message_key= '';
+    private $no_freeze= '';
+    private $password_spent= '';
+    private $require_authorization= '';
+    private $require_destination_tag= '';
+    private $transfer_rate = '';
+    private $wallet_locator= '';
+    private $wallet_size= '';    
+
+
+private $nick_name= '';    
 
     //API server address
     private $api_server = NULL;//Server
@@ -133,25 +137,119 @@ class Wallet extends AccountClass
     }
 
 
+/*
+ * settings
+*/
     /*
      * get the API server
     */
-    public function getAPIServer()
-    {
-        //Init the Server class object
+    public function getAPIServer(){
         return $this->api_server;
     }
+
+    /*
+     * set the Wallet settings using input array
+         private $disallow_swt = '';
+    private $domain = '';
+    private $email_hash= '';
+    private $global_freeze= '';
+    private $message_key= '';
+    private $no_freeze= '';
+    private $password_spent= '';
+    private $require_authorization= '';
+    private $require_destination_tag= '';
+    private $transfer_rate = '';
+    */
+    private function setSettings($in_set)
+    {
+     //try{
+      $this->disable_master = $in_set['disable_master'];
+      $this->disallow_swt = $in_set['disallow_swt'];
+      $this->domain = $in_set['domain'];
+      $this->email_hash = $in_set['email_hash'];
+      $this->global_freeze = $in_set['global_freeze'];
+      $this->message_key = $in_set['message_key'];
+      $this->no_freeze = $in_set['no_freeze'];
+      //$this->password_spent = $in_set['password_spent'];
+      $this->require_authorization = $in_set['require_authorization'];
+      $this->require_destination_tag = $in_set['require_destination_tag'];
+      $this->transfer_rate = $in_set['transfer_rate'];
+      $this->wallet_locator = $in_set['wallet_locator'];
+      $this->wallet_size = $in_set['wallet_size'];
+
+
+
+    }
+    /*
+     * get the Wallet settings from the API server
+    */
+    public function getSettings()
+    {
+        $cmd['method'] = 'GET';
+        $cmd['url'] = str_replace("{0}",$this->address, SETTINGS);
+        $cmd['params'] = '';
+
+        //Get the settings and update the internal
+        //properties
+        if ( is_object($this->api_server)){
+           $ret = $this->api_server->submitRequest($cmd,
+             $this->address, $this->secret);
+         if ( $ret['success'] == true ){
+
+            $this->setSettings($ret['settings']);
+            //$this->disable_master = $ret['settings']
+
+         }
+         return $ret;
+        }
+        else
+           throw new Exception('API Server is not ready!');
+    }
     
+    //return attributes of settings
+    public function getDisableMaster(){return $this->disable_master;} 
+    public function getDisallowSwt(){return $this->disallow_swt;} 
+    public function getDomain(){return $this->domain;}
+    public function getEmail(){return $this->email_hash;} 
+    public function getGlobalFreeze(){return $this->global_freeze;} 
+    public function getMessageKey(){return $this->message_key;} 
+    public function getNoFreeze(){return $this->no_freeze;} 
+    //public function getPasswordSpent(){return $this->password_spent;} 
+    public function getRequireAuthorization(){return $this->require_authorization;} 
+    public function getRequireDestinationTag(){return $this->require_destination_tag;} 
+    public function getTransferRate(){return $this->transfer_rate;} 
+    public function getWalletLocator(){return $this->wallet_locator;}
+    public function getWalletSize(){return $this->wallet_size;}  
+ 
     /**
      *
      * @param string $order, hash value          
      * @return multitype:
      * 获取单个挂单信息
      */
-    public function getOrder($order = '')
+    public function getOrder($order_hash = '')
     {
         $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}",$this->address, ORDERS).$order;
+        $cmd['url'] = str_replace("{0}",$this->address, ORDERS).$order_hash;
+        $cmd['params'] = '';
+
+        if ( is_object($this->api_server))
+           return convertOrder($this->api_server->submitRequest($cmd,
+             $this->address, $this->secret));
+        else
+           throw new Exception('API Server is not ready!');
+    }
+
+    /**
+     *
+     * @param hash value        
+     * @return multitype:
+     * 获取单个挂单信息
+     */
+    public function getMessage($msg_hash = '')
+    {
+        $cmd['method'] = 'GET';
+        $cmd['url'] = str_replace("{0}",$this->address, TRANSACTIONS).$msg_hash;
         $cmd['params'] = '';
 
         if ( is_object($this->api_server))
@@ -468,43 +566,41 @@ class Wallet extends AccountClass
      *
      * @param string $type            
      * @param string $counterparty            
-     * @param string $currency            
-     * @param string $marker            
+     * @param string $currency                      
      * @return multitype:
      */
-    public function getRelationList($type = '', $counterparty = '', $currency = '', $marker = '')
+    public function getRelation($type = '', $counterparty = '', $currency = '')
     {
-        $params['currency'] = $currency;
-        $params['counterparty'] = $counterparty;
-        $params['type'] = $type;
-        $params['marker'] = $marker;
 
         $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}",$this->address, RELATIONS);
-        $cmd['params'] = $params;
+  
+      if ( $type != null )
+        $in_options['type'] = $type;
+          
+      if ( $currency != null )
+        $in_options['currency'] = $currency;
+
+      if ($counterparty != null)
+        $in_options['counterparty'] = $counterparty;
+      
+      //build the url options
+      if ( ! empty($in_options) )
+      {
+          //parse the options into string
+          $parm_str = SnsNetwork::makeQueryString($in_options);
+          //Attach to the end of the URL
+          echo "PArm: ".$parm_str."\n";
+          
+          $cmd['url'] = str_replace("{0}",$this->address, RELATIONS)
+            .'?'.$parm_str;
+      }
+      else
+        $cmd['url'] = str_replace("{0}",$this->address, RELATIONS).'?type=authorize';
+
+        //$cmd['url'] = str_replace("{0}",$this->address, RELATIONS);
+        $cmd['params'] = '';
         
-        if ( is_object($this->api_server))
-           return $this->api_server->submitRequest($cmd,
-             $this->address, $this->secret);
-        else
-           throw new Exception('API Server is not ready!');
-    }
-
-     /**
-     *
-     * 获得对家关系列表
-     */
-    public function getCoRelationList($type = '', $counterparty = '', $currency = '', $marker = '')
-    {
-        $params['currency'] = $currency;
-        $params['counterparty'] = $counterparty;
-        $params['type'] = $type;
-        $params['marker'] = $marker;
-
-        //Create the parameters to be submitted to the Server
-        $cmd['method'] = 'GET';
-        $cmd['url'] = str_replace("{0}", $this->address, CORELATIONS);
-        $cmd['params'] = $params;
+        echo "\n=============\n";
 
         if ( is_object($this->api_server))
            return $this->api_server->submitRequest($cmd,
@@ -512,6 +608,7 @@ class Wallet extends AccountClass
         else
            throw new Exception('API Server is not ready!');
     }
+
 
     /**
      * Using input options to 

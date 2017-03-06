@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP SDK for Jingtum network； PaymentOperation
+ * PHP SDK for Jingtum network； RelationOperation
  * @version 1.0.0
  * 
  * Copyright (C) 2016 by Jingtum Inc.
@@ -16,11 +16,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *   PaymentOperation
+ *   RelationOperation
  * 01/18/2017
  * Added setMemo function
- * Added getSecret function
- * Added getJSON function to add the info into batch operations
+ * 
  */
 
 namespace JingtumSDK;
@@ -45,16 +44,15 @@ if (! function_exists('json_decode')) {
     throw new Exception('JingtumSDK needs the JSON PHP extension.');
 }
 
-/********** Class payment **********/
-//API接口/v1/accounts/{:source_address}/payments?validated=true，POST方法
-class PaymentOperation extends OperationClass
+/********** Class Relation **********/
+//API接口/v1/accounts/{:source_address}/Relations?validated=true，POST方法
+class RelationOperation extends OperationClass
 {
     //Operations need to submit
     private $dest_address = '';
     private $amount = '';
-    private $path = '';
-    private $memo_data = '';
-    private $client_resource_id = '';
+    private $type = '';
+
     private $wallet = null;
 
     
@@ -73,67 +71,16 @@ class PaymentOperation extends OperationClass
        parent::__construct($in_wallet);
        //print "In SubClass constructor\n";
        $this->dest_address = '';       
-       $this->amount['value'] = '';
+       $this->amount['limit'] = '';
        $this->amount['currency'] = '';
        $this->amount['issuer'] = '';
-       $this->path = '';
-       $this->client_resource_id = '';
+       $this->type = '';
+
         }else
           throw new Exception("Input is not a valid wallet object");
     }
   
-    /*
-    * Return an Array with JSON format data contains the 
-    * payment info, used for Batch operation
-    * The returned JSON has two part
-    * secret    -
-    * operation -
-    *   type - 'payment'
-    {
-"type": "Payment",
-"account": "jJ524DekvGBKTKu1gxAhMS8raa3mMfdwta",
-"payment": {
-"source_account": "jJ524DekvGBKTKu1gxAhMS8raa3mMfdwta",
-"destination_amount": {
-"currency": "SWT",
-"issuer": "",
-"value": "0.000002"
-},
-"destination_account": "jHokET15vHKFwg9djpieZryiTzgDHRJLrh",
-"paths": "[]"
-}
-},
-    *    
-    */
-    public function getOperation()
-    {
-        //info to build the server URL
-        $payment['destination_amount'] = $this->amount;
-        $payment['source_account'] = $this->src_address;
-        $payment['destination_account'] = $this->dest_address;
-
-        $payment['paths'] = $this->path;
-
-        //Added the payment memos
-        if ($this->memo_data != ''){
-        $memos['memo_type'] = 'string';
-        $memos['memo_data'] = $this->memo_data;
-
-        $payment['memos'][0] = $memos;
-        }
-
-
-        $params['payment'] = $payment;
-        $params['account'] = $this->src_address;
-        $params['type'] = "Payment";
- 
-        //info to submit
-        // $out_json['secret'] = $this->src_secret;
-        // $out_json['operation'] = $params;
-
-        return $params;
-    }
-
+     
     //using all the info to create the operation URL
     //to use for Server submission
     //return the operation data
@@ -146,86 +93,56 @@ class PaymentOperation extends OperationClass
         //Tum Amount class
         echo "Amount class\n";
         $this->amount['currency'] = $in_tum_amount->getCurrency();
-       $this->amount['value'] = strval($in_tum_amount->getValue());
+       $this->amount['limit'] = strval($in_tum_amount->getValue());
        $this->amount['issuer'] = $in_tum_amount->getIssuer();
 
        }else if(is_array($in_tum_amount)){
         echo "input Amount is JSON\n";
        $this->amount['currency'] = $in_tum_amount['currency'];
-       $this->amount['value'] = strval($in_tum_amount['value']);
+       $this->amount['limit'] = strval($in_tum_amount['value']);
        $this->amount['issuer'] = $in_tum_amount['issuer'];
        }
     }
    
     
-    public function setDestAddress($in_address)
+    public function setCounterparty($in_address)
     {
        $this->dest_address = $in_address;
     }
 
-    public function setMemo($in_str)
+    /*
+     * Set the type of relation
+     * 
+    */
+    public function setType($in_str)
     {
       if (is_string($in_str))
-        $this->memo_data = $in_str;
+        $this->type = $in_str;
       else
-        throw new Exception('Input memo needs to be a string.');
+        throw new Exception('Input type needs to be a string.');
 
        
     }
-
-    public function setPath($in_path)
-    {
-       $this->path = $in_path;
-       
-    }
-
-    //using input choice 
-    public function setChoice($in_choice)
-    {
-       //find the path by using the key
-       $this->path = $this->wallet->getPathByKey($in_choice);
-       
-    }
-    
-    public function setClientId($in_id)
-    {
-      if (is_string($in_id))
-       $this->client_resource_id = $in_id;
-      else
-        throw new Exception('Input client ID needs to be a string.');
-    }
-    
 
 
     //May need to check if the cmd is valid or not.
     public function submit($call_back_func=null)
     {
-        //info to build the server URL
-        $payment['destination_amount'] = $this->amount;
-        $payment['source_account'] = $this->src_address;
-        $payment['destination_account'] = $this->dest_address;
-        $payment['paths'] = $this->path;
 
-        //Added the payment memos
-        if ($this->memo_data != ''){
-        $memos['memo_type'] = 'string';
-        $memos['memo_data'] = $this->memo_data;
-
-        $payment['memos'][0] = $memos;
-        }
  
         //info to submit
         $params['secret'] = $this->src_secret;
-        
 
-        if ( empty($this->client_resource_id))
-          $this->client_resource_id = $this->api_server->getClientId();
-        $params['client_resource_id'] = $this->client_resource_id;
-        $params['payment'] = $payment;
+        $params['counterparty'] = $this->dest_address;
+        $params['type'] = $this->type;
+        $params['amount'] = $this->amount;
         
         $cmd['method'] = 'POST';
-        $cmd['url'] = str_replace("{0}", $this->src_address, PAYMENTS) . '?validated=' . $this->sync;
+        //info to build the server URL
+        $cmd['url'] = str_replace("{0}", $this->src_address, RELATIONS) . '?validated=' . $this->sync;
         $cmd['params'] = $params;
+
+        var_dump($params);
 
         //submit the command and return the results 
         if ($call_back_func)

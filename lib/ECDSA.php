@@ -55,7 +55,7 @@ class ECDSA
         if (! empty($secret)) {
             $key = $this->base58_decode($secret);
             $this->private_gen = $this->generateRandom256BitsHexaString(substr($key, 2, 32));
-            
+            printf("private gen: %s\n", $this->private_gen);
         }
     }
 
@@ -752,7 +752,10 @@ class ECDSA
         // checksum
         $addresshash = $address . substr($this->hash256(hex2bin($address)), 0, 8);
 
+        printf ("addresshash: %s\n", $addresshash);
         $address = $this->base58_encode($addresshash);
+        printf ("address: %s\n", $address);
+
         if ($this->validateAddress($address))
             return $address;
         else
@@ -802,6 +805,11 @@ class ECDSA
             
             $public_gen = $this->computePubKey($private_gen);
 
+            //printf("private gen: %s\n", $private_gen);
+            //printf("pubgen: %s\n", $public_gen);
+            //printf("pubgen base58: %s\n", $this->base58_encode($public_gen));
+
+
             $seq = 0;
             
             do {
@@ -814,6 +822,7 @@ class ECDSA
                 $seq += 1;
             } while (gmp_cmp(gmp_init($key, 16), gmp_sub($this->n, gmp_init(1, 10))) === 1);
 
+            printf("private key : %s\n", gmp_strval(gmp_mod(gmp_add(gmp_init($key, 16), gmp_init($private_gen, 16)), $this->n), 16));
             $this->k = gmp_mod(gmp_add(gmp_init($key, 16), gmp_init($private_gen, 16)), $this->n) . '';
         }
 //        else
@@ -836,28 +845,44 @@ class ECDSA
         
         $public_gen = $this->computePubKey($private_gen);
 
+        //printf("private gen: %s\n", $private_gen);
+        printf("pubgen: %s\n", $public_gen);
+        //printf("pubgen base58: %s\n", $this->base58_encode($public_gen));
+
+
         $seq = 0;
         
         do {
 
+            //$pubgenrev = strrev($public_gen);
+            
             $data = hex2bin($public_gen) . hex2bin(sprintf("%08x", 0)) . hex2bin(sprintf("%08x", $seq));
 
             $key = $this->halfhash512($data);
+            //$key = strrev($key);
             
+            //printf ("hash: %s\n", $key);
             $seq += 1;
         } while (gmp_cmp(gmp_init($key, 16), gmp_sub($this->n, gmp_init(1, 10))) === 1);
 
         //multiply with ECPoint
         $rPt = $this->mulPoint($key, $this->G);
 
+        //printf("mul result: %s %s\n", gmp_strval($rPt['x'],16), gmp_strval($rPt['y'],16));
+
         //get pubgen ec point
         $pubgenpoint = $this->getPubKeyPointsWithDerPubKey($public_gen);
+        //printf("pubgen ecpoint: %s %s\n", $pubgenpoint['x'], $pubgenpoint['y']);
 
         // add together
         $resultingPt = $this->addPoints($rPt, ['x'=>gmp_init($pubgenpoint['x'], 16), 'y'=>gmp_init($pubgenpoint['y'], 16)]);
+       printf("add result: %s %s\n", gmp_strval($resultingPt['x'],16), gmp_strval($resultingPt['y'],16));
+
 
         //compresss
         $pubkey = $this->getDerPubKeyWithPubKeyPoints(['x'=>gmp_strval($resultingPt['x'],16), 'y'=>gmp_strval($resultingPt['y'],16)]);
+
+        printf("pubkey: %s\n", $pubkey);
 
         return $pubkey;
 

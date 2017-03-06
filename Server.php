@@ -296,7 +296,9 @@ class WebSocketServer extends ServerClass
 {
     private $ws_server = ''; 
 
-    function __construct()
+    private static $instance = NULL;
+
+    protected function __construct()
     {
       //Load the default config file
       //return should be an object holding JSON info.
@@ -317,6 +319,16 @@ class WebSocketServer extends ServerClass
         throw new Exception ('Error of read config info!');
     }
 
+    //Return an instance object
+    public static function getInstance()
+    {
+        if (! self::$instance instanceof self) {
+            self::$instance = new self();
+        }
+        
+        return self::$instance;
+    }
+
     /**
      * Connect to the socket server to receive
      * messages.
@@ -324,7 +336,11 @@ class WebSocketServer extends ServerClass
     */
     public function connect()
     {
+
+        echo "connect to $this->serverURL\n";
+        
         $this->ws_server = new Client($this->serverURL);
+
         if ($this->ws_server->isConnected() == true )
           printf("Web socket connected successfully!\n");
         return $this->ws_server->receive();
@@ -333,9 +349,32 @@ class WebSocketServer extends ServerClass
     /**
      *
      * @subscribe 
+     * To get the info of the ledger
+     * from the connect Socket server.     
+     * 客户端在连接上服务之后，通过发送订阅请求进行订阅，
+     * 
+     */
+    public function subscribeLedger($in_address, $in_secret)
+    {
+        
+        $command['command'] = 'subscribe';
+        $command['streams'][0] = "ledger";
+        $command['account'] = $in_address;
+        $command['secret'] = $in_secret;
+        
+        echo "Subscribe to ledger\n";
+
+        $this->ws_server->send(json_encode($command));
+        
+        return $this->ws_server->receive();
+    }
+
+    /**
+     *
+     * @subscribe 
      * To get the info of the input wallet
      * from the connect Socket server.     
-     * 客户端在连接上服务之后，通过发送订阅请求进行订阅，订阅请求如下：
+     * 客户端在连接上服务之后，通过发送订阅请求进行订阅：
      * 订阅请求中，必须将订阅用户的地址和私钥一起提交上来，
      * 每个用户只能订阅用户自己的交易信息。
      */
