@@ -18,25 +18,6 @@ function readConfigJSON($in_file)
     //look for DEV
     $data = json_decode($content);
 
-//    printf("%s\n", $data[2]);
-//    var_dump($data[2]);//'DEV']);
-    //= strpos($content, "DEV");
-    
-  /* 
-    $json_obj = new ConfigClass; 
-    $json_obj->DEV['api'] = 'https://tapi.jingtum.com';
-    $json_obj->DEV['api_version'] = 'v1';
-    $json_obj->DEV['ws'] = 'wss://tapi.jingtum.com:5443';
-    $json_obj->DEV['fingate'] = 'https://tfingate.jingtum.com';
-
-
-    $json_obj->PRO->api = 'https://api.jingtum.com';
-    $json_obj->PRO->api_version = 'v1';
-    $json_obj->PRO->ws = 'wss://tapi.jingtum.com:5443';
-    $json_obj->PRO->fingate = 'https://fingate.jingtum.com';
-//    printf("read in %s\n", json_encode($json_content));
-    //return a variable 
-    //return json_encode($json_content);*/
     return $data;
   }
 }

@@ -89,10 +89,10 @@ $fin_gate->setMode(FinGate::DEVELOPMENT);
 
 
 echo "Setup wallet for testing\n";
-$wallet2 = new Wallet($test_wallet2->secret, $test_wallet2->address);
+$wallet2 = new Wallet($test_wallet3->secret, $test_wallet3->address);
 
 //Get the settings from the API server
-displaySettings($wallet2->getSettings());
+//displaySettings($wallet2->getSettings());
 
 //check the wallet settings
 
@@ -117,10 +117,11 @@ $setreq->setRequireAuthorization(true);
 $setreq->setDisallowSwt(true);
 //$setreq->setDisableMaster(true);
 */
-$setreq->setMessageKey("");//Keylocator".time());
-#$setreq->setTransferRate(1.10);
+//$setreq->setMessageKey("");//Keylocator".time());
+$setreq->setTransferRate(1.01);
 //$setreq->setWalletSize(10);
-
+$setreq->setDisableMaster(false);
+$setreq->setDisallowSwt(false);
 //Submit the payment operation
 $setreq->submit('call_back_func');
 

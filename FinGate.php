@@ -155,7 +155,7 @@ class FinGate extends AccountClass
 
 
     //Setup an account for FinGate
-    public function setAccount($in_secret, $in_address)
+    public function setAccount($in_secret, $in_address=null)
     {
        parent::__construct($in_secret, $in_address);
 
@@ -165,7 +165,7 @@ class FinGate extends AccountClass
     /**
      * This value is set in the configure file.
      * Should return the websocket server.
-     * @return the websocket server link
+     * @return the websocket server instance
      * 
      */
     public function getWebsocketServer()
@@ -173,6 +173,17 @@ class FinGate extends AccountClass
         return $this->websocket_server;
     }
     
+    /**
+     * This value is set in the configure file.
+     * Should return the API server.
+     * @return the API server instance
+     * 
+     */
+    public function getAPIServer()
+    {
+        return $this->api_server;
+    }
+
     /**
      * This value is set in the configure file.
      * Should not less than 20 SWT.

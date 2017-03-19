@@ -70,6 +70,27 @@ function isCurrency($in_str)
 }
 
 /*
+ * Return true if the input string is a valid Relation type.
+*/
+function isValidRelation($in_str)
+{
+    if (is_string($in_str)){
+      if ( strcmp($in_str, 'authorize') == 0)
+        return true;
+
+      if ( strcmp($in_str, 'friend') == 0)
+        return true;
+
+      if ( strcmp($in_str, 'freeze') == 0)
+        return true;
+
+    } 
+    
+    //Return false for other cases
+    return false;
+}
+
+/*
  * Return true if the input string is a valid Tum code.
 */
 function isTum($in_str)

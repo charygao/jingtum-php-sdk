@@ -39,8 +39,16 @@
       "secret":"shNKNNtxgBgZDa3YADcAKBFy5W5kK"
     },
     "wallet4":{
-      "address":"j44rkkVKxnqhm9cP7kQqpj27YGYTFAEFRh",
-      "secret":"shNKNNtxgBgZDa3YADcAKBFy5W5kK"
+      "address":"jwFbjuKthciC9osovaLaXQpnCpFXH59xLD",
+      "secret":"shhjwuraGidjAg5iiD1wdC7fLJsQU"
+    },
+    "wallet5":{
+      "address":"jN4PLj9KyYz6HFYVpfZuLbdndpXBQUBGtK",
+      "secret":"shfnipp42Xdk72UmAJZ7L2JJdaJMr"
+    },
+    "wallet6":{
+      "address":"jP9SLTEgykUkWoLVPUZ9oVwigJbneXVPGR",
+      "secret":"ssTuzzjWJDUSn9WR2TrJgB61DNkjy"
     },
     "CNYAmount1":{
       "currency":"CNY",

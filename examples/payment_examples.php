@@ -111,6 +111,7 @@ $test_data = readTestData("examples/test_data.json");
 $fg1 = $test_data->DEV->wallet1;
 $test_wallet2 = $test_data->DEV->wallet2;
 $test_wallet3 = $test_data->DEV->wallet3;
+$test_wallet5 = $test_data->DEV->wallet5;
 
 $test_cny = $test_data->DEV->CNYAmount1;
 
@@ -133,6 +134,7 @@ $fin_gate->setActivateAmount(25);
 
 echo "Setup wallet 2 and 3 for testing\n";
 $wallet2 = new Wallet($test_wallet2->secret, $test_wallet2->address);
+//$wallet2 = new Wallet($test_wallet5->secret, $test_wallet5->address);
 
 
 $wallet3 = new Wallet($test_wallet3->secret, $test_wallet3->address);
@@ -140,12 +142,13 @@ $wallet3 = new Wallet($test_wallet3->secret, $test_wallet3->address);
 //A payment obj for testing
 $payreq = new PaymentOperation($wallet2);
 $pay_value = 0.01;
+$amt1 = new Amount($pay_value, 'SWT', '');
 
 //debug lines
 
-goto path_payment_test;
-// //goto payment_list;
-goto simple_payment_test;
+//goto path_payment_test;
+//goto payment_list;
+//goto simple_payment_test;
 
 echo "======================================\n";
 echo "*\n* Create new wallet test program\n";
@@ -174,13 +177,25 @@ echo "Check Balance of the new wallet\n";
 
 $res = $wallet1->getBalance();
 $src_val0 = displayBalances($res, 0);
+$newpayreq = new PaymentOperation($wallet1);
+echo "======================================\n";
+echo "*\n* Payback test program\n";
+echo "======================================\n";
+$client_id = "NewWallet".time();
+$newpayreq->setDestAddress($fin_gate->getAddress());//required
+$newpayreq->setMemo("New".$client_id);
+$newpayreq->setAmount($amt1);
+$newpayreq->setClientID($client_id);//optional, if not provided, SDK will generate an internal one
+//Submit the payment operation
+$newpayreq->submit('call_back_func');
 
-simple_payment_test:
+return;
+
 echo "======================================\n";
 echo "*\n* Simple payment test program\n";
 echo "======================================\n";
 
-
+simple_payment_test:
 //payback the FinGate for testing
 //This need to create a wallet class
 
@@ -191,18 +206,26 @@ $des_val0 = displayBalances($res, 0);
 
 $client_id = "JTtest".time();
 
-$amt1 = new Amount($pay_value, 'SWT', '');
 
 $payreq->setDestAddress($wallet3->getAddress());//required
-$payreq->setMemo("SWT PAYMENT".$client_id);
+//$payreq->setMemo("SWT PAYMENT".$client_id);
 $payreq->setAmount($amt1);
 $payreq->setClientID($client_id);//optional, if not provided, SDK will generate an internal one
 //$payreq->setValidate(false);//optional, setup the syn mode, default is true
 
 //Submit the payment operation
 $payreq->submit('call_back_func');
+return;
+sleep(3);
+//$payreq->setClientID($client_id);//optional, if not provided, SDK will generate an internal one
+//$payreq->setValidate(false);//optional, setup the syn mode, default is true
 
-sleep(5);
+//Submit the payment operation
+//$payreq->submit('call_back_func');
+$res = $payreq->submit();
+var_dump($res);
+return;
+sleep(10);
 
 //Check the payment
 $res = $wallet2->getPayment($client_id);
@@ -259,7 +282,6 @@ echo "Find ".count($ret['payments'])." paths\n";
 $key = $ret['payments'][0]['key'];
 echo $key;
 echo "====================\n";
-return;
 
 //Set a path to the payment operation
 $payreq->setAmount($amt1->getAmount());

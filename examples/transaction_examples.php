@@ -19,7 +19,8 @@ function displayTransactionList($res){
 
 if ( $res['success'] == true ){
 //print_r($res);
-  if ( is_array($res['transactions']) ){
+  if (array_key_exists('transactions', $res)){
+    //if ( is_array($res['transactions']) ){
     $num = count($res['transactions']);
     echo "Total $num transactions:\n";
     for ( $i = 0; $i < $num; $i ++){

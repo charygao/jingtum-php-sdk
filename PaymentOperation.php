@@ -16,10 +16,9 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *   PaymentOperation
+ * PaymentOperation
  * 01/18/2017
  * Added setMemo function
- * Added getSecret function
  * Added getJSON function to add the info into batch operations
  */
 
@@ -88,21 +87,19 @@ class PaymentOperation extends OperationClass
     * The returned JSON has two part
     * secret    -
     * operation -
-    *   type - 'payment'
-    {
-"type": "Payment",
-"account": "jJ524DekvGBKTKu1gxAhMS8raa3mMfdwta",
-"payment": {
-"source_account": "jJ524DekvGBKTKu1gxAhMS8raa3mMfdwta",
-"destination_amount": {
-"currency": "SWT",
-"issuer": "",
-"value": "0.000002"
-},
-"destination_account": "jHokET15vHKFwg9djpieZryiTzgDHRJLrh",
-"paths": "[]"
-}
-},
+        "type": "Payment",
+        "account": "jJ524DekvGBKTKu1gxAhMS8raa3mMfdwta",
+        "payment": {
+        "source_account": "jJ524DekvGBKTKu1gxAhMS8raa3mMfdwta",
+        "destination_amount": {
+        "currency": "SWT",
+        "issuer": "",
+        "value": "0.000002"
+        },
+        "destination_account": "jHokET15vHKFwg9djpieZryiTzgDHRJLrh",
+        "paths": "[]"
+        }
+        },
     *    
     */
     public function getOperation()
@@ -204,10 +201,13 @@ class PaymentOperation extends OperationClass
         $payment['destination_amount'] = $this->amount;
         $payment['source_account'] = $this->src_address;
         $payment['destination_account'] = $this->dest_address;
-        $payment['paths'] = $this->path;
+       
+        if ( !empty($this->path)){
+          $payment['paths'] = $this->path;
+        }
 
         //Added the payment memos
-        if ($this->memo_data != ''){
+        if (!empty($this->memo_data)){
         $memos['memo_type'] = 'string';
         $memos['memo_data'] = $this->memo_data;
 
@@ -226,6 +226,8 @@ class PaymentOperation extends OperationClass
         $cmd['method'] = 'POST';
         $cmd['url'] = str_replace("{0}", $this->src_address, PAYMENTS) . '?validated=' . $this->sync;
         $cmd['params'] = $params;
+
+        var_dump($params);
 
         //submit the command and return the results 
         if ($call_back_func)

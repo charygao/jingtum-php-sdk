@@ -230,7 +230,6 @@ cancel_order_test:
 echo "=======Submit one order===================\n";
 //Submit order
 $ret = $req2->submit();
-sleep(5);
 
 if ( $ret['success'] == true ){
   
@@ -254,7 +253,7 @@ echo "=======Cancel the order===================\n";
 cancel_order:
 //to cancel a submitted order, need to wait until the ledger closed
 //then cancel it
-sleep(10);
+sleep(5);
 if ( ! empty($order_id) ){
   echo "\nCancelling order $order_id\n";
   $cancel_req = new CancelOrderOperation($wallet2);

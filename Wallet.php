@@ -537,6 +537,24 @@ private $nick_name= '';
            throw new Exception('API Server is not ready!');
     }
 
+    /**
+     * Return the signers of the account
+     * 
+     * @return multitype:
+     */
+    public function getSigners()
+    {
+
+        $cmd['method'] = 'GET';
+        $cmd['url'] = str_replace("{0}",$this->address, SIGNERS);
+        $cmd['params'] = '';
+        
+        if ( is_object($this->api_server))
+           return $this->api_server->submitRequest($cmd,
+             $this->address, $this->secret);
+        else
+           throw new Exception('API Server is not ready!');
+    }
 
     /**
      *
@@ -553,7 +571,7 @@ private $nick_name= '';
         
         $cmd['method'] = 'GET';
         $cmd['url'] = str_replace("{0}",$this->address, TRUST_LINES);
-        $cmd['params'] = '';
+        $cmd['params'] = $params;
         
         if ( is_object($this->api_server))
            return $this->api_server->submitRequest($cmd,

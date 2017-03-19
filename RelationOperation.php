@@ -80,7 +80,48 @@ class RelationOperation extends OperationClass
           throw new Exception("Input is not a valid wallet object");
     }
   
-     
+    /*
+    * Return an Array with JSON format data contains the 
+    * relation info, used for Batch operation
+    * The returned JSON has two part
+    * secret    - getSrcSecret() in OperationClass
+    * operation -
+      {
+      "account": "jMSNixuNYo7wKYPoseEYfgBsZ44whxHiFg",
+      "type": "authorize",
+      "counterparty": "jGVqdPGW9V2bcCgSFKz4Yp2nsqwuAVnGSW",
+      "amount": {
+      "limit": "60",
+      "currency": "USD",
+      "issuer": "j9Xu1Q1eYhQ1BNFYha6qTTTHfnFTPzosLz"
+      }
+      },
+    *    
+    */
+    public function getOperation()
+    {
+        //info to build the server URL
+        //info to build the server URL
+        if ( $this->dest_address == '')
+          throw new Exception('Dest account is not set');
+        
+        if ( strcmp($this->type, 'authorize') != 0)
+          throw new Exception('Invalid Relation type for Batch operation');
+
+        if ( $this->amount == '')
+          throw new Exception('Relation amount is not set');
+
+
+        
+        //info to submit
+        $params['account'] = $this->src_address;
+        $params['type'] = $this->type;
+        $params['counterparty'] = $this->dest_address;
+        $params['amount'] = $this->amount;
+
+        return $params;
+    }
+
     //using all the info to create the operation URL
     //to use for Server submission
     //return the operation data
@@ -129,7 +170,6 @@ class RelationOperation extends OperationClass
     public function submit($call_back_func=null)
     {
 
- 
         //info to submit
         $params['secret'] = $this->src_secret;
 

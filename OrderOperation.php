@@ -121,6 +121,89 @@ class OrderOperation extends OperationClass
       return $out_tum;
     }
 
+    /*
+    * Return an Array with JSON format data contains the 
+    * order info, used for Batch operation
+    * The returned JSON has two part
+    * secret    -
+    * operation -
+      "account": "jEQM2moWBW2PmH2oUscw2nBhmeuV35ojKH",
+      "type": "sell",
+      "order": {
+      "type": "sell",
+      "taker_gets": {
+      "currency": "USD",
+      "counterparty": "jBciDE8Q3uJjf111VeiUNM775AMKHEbBLS",
+      "value": "1"
+      },
+      "taker_pays": {
+      "currency": "CNY",
+      "counterparty": "jBciDE8Q3uJjf111VeiUNM775AMKHEbBLS",
+      "value": "1"
+      }
+      }
+      },
+    *    
+    */
+    public function getOperation()
+    {
+        //info to build the server URL
+        //info to build the server URL
+        if ( $this->order_type == '')
+          throw new Exception('Order type is not set');
+        
+        if ( $this->tum0 == '' || $this->tum1 == '')
+          throw new Exception('Missing tum information');
+
+        if ( $this->src_amount == '')
+          throw new Exception('Source amount is not set');
+
+        if ( $this->src_price == '')
+          throw new Exception('Price is not set');
+
+        $order['type'] = $this->order_type;
+
+        //Set the taker_pays and gets according to
+        //the order type
+        $des_amount = $this->src_amount * $this->src_price;
+        if ( $this->order_type == 'sell'){
+          
+          //sell the tum owned
+          $taker_pays = $this->tum0;
+          $taker_gets = $this->tum1;
+
+          $taker_pays['value'] = strval($this->src_amount);
+          $taker_gets['value'] = strval($des_amount);          
+        }else{
+          
+          //Sell
+          $taker_pays = $this->tum1;
+          $taker_gets = $this->tum0;
+
+          $taker_pays['value'] = strval($des_amount);
+          $taker_gets['value'] = strval($this->src_amount);   
+        }
+
+        // echo $this->src_price."\n";
+        // echo $this->src_amount."\n";
+
+
+
+        $order['taker_pays'] = $taker_pays;
+        $order['taker_gets'] = $taker_gets;
+        
+        //info to submit
+        $params['account'] = $this->src_address;
+        $params['type'] = $this->order_type;
+        $params['order'] = $order;
+ 
+        //info to submit
+        // $out_json['secret'] = $this->src_secret;
+        // $out_json['operation'] = $params;
+
+        return $params;
+    }
+
     //Setup the tum pair
     public function setPair($in_str)
     {
@@ -223,8 +306,8 @@ class OrderOperation extends OperationClass
           $taker_gets['value'] = strval($this->src_amount);   
         }
 
-        echo $this->src_price."\n";
-        echo $this->src_amount."\n";
+        // echo $this->src_price."\n";
+        // echo $this->src_amount."\n";
 
 
 

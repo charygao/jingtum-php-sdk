@@ -42,5 +42,6 @@ define('TRANSACTIONS', '/accounts/{0}/transactions/');
 define('OPERATIONS', '/accounts/{0}/operations/');
 define('MESSAGES', '/accounts/{0}/messages/');
 define('SETTINGS', '/accounts/{0}/settings/');
+define('SIGNERS', '/accounts/{0}/signers/');
 
 ?>
