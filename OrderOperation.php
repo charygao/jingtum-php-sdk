@@ -22,6 +22,7 @@
  * setType(Order.SELL);
  * setAmount(1000.00);
  * setPrice(0.0005);
+ * 08/20/2017 Fixed the sell/buy order seq.
  */
 
 namespace JingtumSDK;
@@ -288,9 +289,11 @@ class OrderOperation extends OperationClass
         //Set the taker_pays and gets according to
         //the order type
         $des_amount = $this->src_amount * $this->src_price;
-        if ( $this->order_type == 'sell'){
+
+        if ( $this->order_type == 'buy'){
           
-          //sell the tum owned
+          //buy AAA/BBB 
+          //User gets AAA pays BBB
           $taker_pays = $this->tum0;
           $taker_gets = $this->tum1;
 
@@ -298,16 +301,18 @@ class OrderOperation extends OperationClass
           $taker_gets['value'] = strval($des_amount);          
         }else{
           
-          //Sell
+          //sell AAA/BBB
+          //User pays AAA gets BBB
+          $taker_gets = $this->tum0;          
           $taker_pays = $this->tum1;
-          $taker_gets = $this->tum0;
+
 
           $taker_pays['value'] = strval($des_amount);
           $taker_gets['value'] = strval($this->src_amount);   
         }
 
         // echo $this->src_price."\n";
-        // echo $this->src_amount."\n";
+         echo $this->order_type.":".$this->src_amount."\n";
 
 
 

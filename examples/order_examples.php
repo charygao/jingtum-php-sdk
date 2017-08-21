@@ -26,13 +26,13 @@ require_once 'OrderOperation.php';
 require_once 'CancelOrderOperation.php';
 
 //Display the balance in the account
-function displayBalances($res, $j = 0){
+function displayFreezedBalances($res, $j = 0){
   $return_value = -999;
   if ( $res['success'] == true ){
   if ( is_array($res['balances']) ){
     for ( $i = 0; $i < count($res['balances']); $i ++){
       $code = $res['balances'][$i]['currency'];
-      $value = $res['balances'][$i]['value'];
+      $value = $res['balances'][$i]['freezed'];
       if ( $i == $j )
         $return_value = $value;
       echo "\n$code : $value";
@@ -200,15 +200,13 @@ var_dump($ret);
 // checkOrderStatus($ret);
 
 $wallet3 = new Wallet($test_wallet3->secret, $test_wallet3->address);
-// $ret = $wallet3->getTransactionList();
-// checkOrderStatus($ret);
 
 
 
 //1 SWT with 10 CNY
 //create the two Amount object
 $pay_price = 1.1;
-$pay_amount = 0.01;
+$pay_amount = 1.23;
 $tum_pair = 'SWT'.'/'.$test_cny->currency.':'.$test_cny->issuer;
 
 echo "======================================\n";
@@ -228,6 +226,9 @@ $req2->setPair($tum_pair);
 
 cancel_order_test:
 echo "=======Submit one order===================\n";
+$res = $wallet2->getBalance();
+$src_val0 = displayFreezedBalances($res, 0);
+
 //Submit order
 $ret = $req2->submit();
 
@@ -242,6 +243,9 @@ if ( $ret['success'] == true ){
   echo "=======Check the order===================\n";
 $res = $wallet2->getOrder($ret['hash']);
 var_dump($res);
+
+$res = $wallet2->getBalance();
+$src_val1 = displayFreezedBalances($res, 0);
 
 echo "=======Check the order TX===================\n";
 $res = $wallet2->getTransaction($ret['hash']);
