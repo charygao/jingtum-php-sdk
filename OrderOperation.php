@@ -97,6 +97,14 @@ class OrderOperation extends OperationClass
        //may need to check if the value is boolean or not
     }
 
+    //Return the order type 
+    //Only two order types were allowed, all in small cases.
+    //sell, buy
+    public function getType($in_type)
+    {
+        return $this->order_type = $in_type;
+    }
+    
     //input string should have the format as
     //tumCode+TumIssuer
 
@@ -149,7 +157,6 @@ class OrderOperation extends OperationClass
     public function getOperation()
     {
         //info to build the server URL
-        //info to build the server URL
         if ( $this->order_type == '')
           throw new Exception('Order type is not set');
         
@@ -167,9 +174,9 @@ class OrderOperation extends OperationClass
         //Set the taker_pays and gets according to
         //the order type
         $des_amount = $this->src_amount * $this->src_price;
-        if ( $this->order_type == 'sell'){
+        if ( $this->order_type == 'buy'){
           
-          //sell the tum owned
+          //buy the tum owned
           $taker_pays = $this->tum0;
           $taker_gets = $this->tum1;
 
@@ -288,12 +295,13 @@ class OrderOperation extends OperationClass
 
         //Set the taker_pays and gets according to
         //the order type
-        $des_amount = $this->src_amount * $this->src_price;
+       $des_amount = $this->src_amount * $this->src_price;
 
         if ( $this->order_type == 'buy'){
           
           //buy AAA/BBB 
-          //User gets AAA pays BBB
+          //User gets AAA pays BBB,
+          //BBB should be freeze
           $taker_pays = $this->tum0;
           $taker_gets = $this->tum1;
 

@@ -642,6 +642,7 @@ private $nick_name= '';
       {
           //parse the options into string
           $parm_str = SnsNetwork::makeQueryString($in_options);
+
           //Attach to the end of the URL
           //
           $cmd['url'] = str_replace("{0}",$this->address, TRANSACTIONS)

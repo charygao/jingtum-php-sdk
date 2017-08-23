@@ -18,8 +18,8 @@ class SnsNetwork
     /**
      * 执行API调用，返回结果数组
      *
-     * @param string $script_name
-     *            调用的API方法，比如/v3/user/get_info，参考 http://wiki.open.qq.com/wiki/API_V3.0%E6%96%87%E6%A1%A3
+     * @param string $url
+     *            调用的URL
      * @param array $params
      *            调用API时带的参数
      * @param string $method
@@ -61,8 +61,6 @@ class SnsNetwork
      *            执行请求的URL
      * @param mixed $params
      *            可以是array, 也可以是经过url编码之后的string
-     * @param mixed $cookie
-     *            可以是array, 也可以是经过拼接的string
      * @param string $method
      *            post / get
      * @param string $protocol
@@ -73,11 +71,15 @@ class SnsNetwork
     {
         $query_string = self::makeQueryString($params);
         
+
+
         $ch = curl_init();
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         
         if ('GET' == strtoupper($method)) {
-            curl_setopt($ch, CURLOPT_URL, "$url?$query_string");
+           //curl_setopt($ch, CURLOPT_URL, "$url?$query_string");
+            curl_setopt($ch, CURLOPT_URL, "$url");
             curl_setopt($ch, CURLOPT_HEADER, false);
         } elseif ('POST' == strtoupper($method)) {
             curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -108,7 +110,6 @@ class SnsNetwork
         }
         
         // ob_start();
-        
         $ret = curl_exec($ch);
         // $ret = ob_get_contents();
         
@@ -136,6 +137,8 @@ class SnsNetwork
         );
     }
 
+    /*
+    */
     static public function makeQueryString($params)
     {
         if (is_string($params))

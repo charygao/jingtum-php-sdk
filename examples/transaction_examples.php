@@ -77,7 +77,6 @@ echo "======Get Transactions======\n";
 $res = $wt0->getTransactionList();
 displayTransactionList($res);
 
-return;
 //Can use options to filter out the transaction list
 /*参数类型说明
 source_account String 交易方地址
@@ -92,7 +91,7 @@ echo "======With Options======\n";
 //$options['destination_account'] = $test_wallet3->address;
 //$options['exclude_failed'] = true;
 //$options['direction'] = 'incoming';//'outgoing'
-$options['results_per_page'] = 20;
+$options['results_per_page'] = 5;
 $options['page'] = 1;
 $res = $wt0->getTransactionList($options);
 
@@ -103,6 +102,7 @@ $last_hash = displayTransactionList($res);
 else
   echo 'Error in initing Wallet Server';
 
+return;
 echo "\n======Check transaction by HASH======\n";
 if ( $last_hash ){
   $res = $wt0->getTransaction($last_hash);

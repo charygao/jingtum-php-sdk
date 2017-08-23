@@ -144,8 +144,10 @@ class APIServer extends ServerClass
         try {
           $this->uuid = 0;
           $this->version = $this->config->PRO->api_version;
+
           if ( $this->version != 'v1' && $this->version != 'v2')
             throw new Exception('API version error!');
+
         }catch (Exception $e) {
           echo "Error in get the API version\n";
         }
@@ -187,8 +189,9 @@ class APIServer extends ServerClass
         //info
         $url = $this->serverURL .'/'. $this->version . $in_cmd['url'];
         
-        /*Handles different API version
-         * This part doesn't work by 09/25/2016
+        /*
+         * Handles different API version
+         * 
          */
         if ($this->version == 'v2') {
             $res = buildSignString($in_address, $in_secret);
@@ -199,8 +202,6 @@ class APIServer extends ServerClass
             $params['t'] = $res['t'];
         }
 
-       echo $url."\n";
-        //var_dump($in_cmd['params']);
 
         //Submit the parameters to the SERVER
         return SnsNetwork::api($url, 

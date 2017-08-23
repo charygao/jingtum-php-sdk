@@ -214,8 +214,8 @@ echo "*\n* Create order program\n";
 echo "======================================\n";
 
 $req2 = new OrderOperation($wallet2);
-echo $req2::BUY."\n";
 
+//$req2->setType($req2::BUY);//required
 $req2->setType($req2::BUY);//required
 $req2->setPrice($pay_price);
 $req2->setAmount($pay_amount);
@@ -225,6 +225,8 @@ $req2->setPair($tum_pair);
 //goto order_test;
 
 cancel_order_test:
+echo $req2::BUY."\n";
+
 echo "=======Submit one order===================\n";
 $res = $wallet2->getBalance();
 $src_val0 = displayFreezedBalances($res, 0);
@@ -238,20 +240,21 @@ if ( $ret['success'] == true ){
   echo "Order submitted successfully\n";
   echo "HASH ID:".$ret['hash']."\n";
 
+  $res = $wallet2->getBalance();
+  $src_val1 = displayFreezedBalances($res, 0);
   // $res = $wallet2->getOrderList();
   // displayOrderList($res);
   echo "=======Check the order===================\n";
 $res = $wallet2->getOrder($ret['hash']);
-var_dump($res);
+//var_dump($res);
 
-$res = $wallet2->getBalance();
-$src_val1 = displayFreezedBalances($res, 0);
+
 
 echo "=======Check the order TX===================\n";
 $res = $wallet2->getTransaction($ret['hash']);
-var_dump($res);
+//var_dump($res);
 
-  $order_id = $ret['sequence'];
+$order_id = $ret['sequence'];
 
 echo "=======Cancel the order===================\n";
 cancel_order:
